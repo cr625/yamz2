@@ -11,7 +11,7 @@ from flask import url_for
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-from yamz.database import get_db
+from yamz.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -38,11 +38,10 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = (
-            get_db()
-            .cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
-            .fetchone()
-        )
+        db = get_db()
+        curs = db.cursor()
+        curs.execute("SELECT * FROM YAMZ.user WHERE id = %s", (user_id,))
+        g.user = curs.fetchone()
 
 
 @bp.route("/register", methods=("GET", "POST"))
@@ -65,11 +64,14 @@ def register():
 
         if error is None:
             try:
-                db.cursor.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
+                curs = db.cursor()
+                curs.execute(
+                    """
+                INSERT INTO YAMZ.user (username, password)
+                VALUES (%s, %s);""",
                     (username, generate_password_hash(password)),
                 )
-                db.cursor.commit()
+                db.commit()
             except db.IntegrityError:
                 # The username was already taken, which caused the
                 # commit to fail. Show a validation error.
@@ -90,10 +92,12 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         db = get_db()
+        curs = db.cursor()
+
         error = None
-        user = db.cursor.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-        ).fetchone()
+
+        curs.execute("SELECT * FROM YAMZ.user WHERE username = %s", (username,))
+        user = curs.fetchone()
 
         if user is None:
             error = "Incorrect username."
