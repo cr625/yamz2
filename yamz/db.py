@@ -51,7 +51,7 @@ def init_db():
                 CREATE TABLE YAMZ.term (
                     id SERIAL PRIMARY KEY NOT NULL,
                     author_id INTEGER DEFAULT 0 NOT NULL,
-                    term TEXT NOT NULL,
+                    term_string TEXT NOT NULL,
                     definition TEXT NOT NULL,
                     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (author_id) REFERENCES YAMZ.user (id)

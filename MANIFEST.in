@@ -1,0 +1,3 @@
+graft yamz/static
+graft yamz/templates
+global-exclude *.pyc

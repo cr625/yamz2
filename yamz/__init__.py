@@ -26,28 +26,20 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route("/")
-    def index():
-        return "Hello, World!"
-
-    @app.route("/hello")
-    def hello():
-        return "hello world"  # getAllTerms()
-
     # register the database commands
     from yamz import db
 
     db.init_app(app)
 
     # apply the blueprints to the app
-    from yamz import auth
+    from . import auth
 
     app.register_blueprint(auth.bp)
 
     from . import term
 
     app.register_blueprint(term.bp)
-    app.add_url_rule("/", endpoint="index")
+    # app.add_url_rule("/term", endpoint="term.index")
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with
     # app.route, while giving the blog blueprint a url_prefix, but for

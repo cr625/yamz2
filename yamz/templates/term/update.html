@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit "{{ term['term_string'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="term">Term</label>
+    <input name="term" id="term" value="{{ request.form['term'] or term['term_string'] }}" required>
+    <label for="body">Definition</label>
+    <textarea name="definition" id="definition">{{ request.form['definition'] or term['definition'] }}</textarea>
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  <form action="{{ url_for('term.delete', id=term['id']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+{% endblock %}
