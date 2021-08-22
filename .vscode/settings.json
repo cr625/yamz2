@@ -1,4 +1,11 @@
 {
-    "sqltools.connections": [],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "dev",
+            "database": "\\\\wsl.localhost\\Ubuntu\\home\\chris\\code\\yamz2\\yamz"
+        }
+    ],
     "sqltools.useNodeRuntime": true
 }

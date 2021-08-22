@@ -1,14 +1,15 @@
-from symbol import term
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
 
-from yamz.auth import login_required
-from yamz.db import get_db
+from .auth import login_required
+from .database import get_db
+
+from .forms import CreateTermForm
 
 bp = Blueprint("term", __name__)
 
 
-@bp.route("/")
+@bp.route("/term")
 def index():
     """Show all my terms, most recent first."""
     db = get_db()
@@ -23,7 +24,7 @@ def index():
 
 
 def get_term(id, check_author=True):
-    """Get a post and its author by id.
+    """Get a term and its author by id.
     Checks that the id exists and optionally that the current user is
     the author.
     :param id: id of term to get
@@ -52,7 +53,36 @@ def get_term(id, check_author=True):
     return term
 
 
-@bp.route("/create", methods=("GET", "POST"))
+@bp.route("/term/<int:id>/")
+def show(id):
+    """Show a term and its definition."""
+    term = get_term(id)
+    return render_template("term/display.html", term=term)
+
+
+@bp.route("/term/add", methods=("GET", "POST"))
+@login_required
+def add():
+    """Create a new term."""
+    form = CreateTermForm()
+    if form.validate_on_submit():
+        term = form.term.data
+        definition = form.definition.data
+        db = get_db()
+        curs = db.cursor()
+        curs.execute(
+            """
+            INSERT INTO YAMZ.term (term_string, definition, author_id)
+            VALUES (%s, %s, %s);""",
+            (term, definition, g.user["id"]),
+        )
+        db.commit()
+        flash("Your term was added!")
+        return redirect(url_for("term.index"))
+    return render_template("term/add.html", form=form)
+
+
+@bp.route("/term/create", methods=("GET", "POST"))
 @login_required
 def create():
     """Create a new term for the current user."""
@@ -79,7 +109,7 @@ def create():
     return render_template("term/create.html")
 
 
-@bp.route("/<int:id>/update", methods=("GET", "POST"))
+@bp.route("/term/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
     """Update a term, if the current user is the author."""
@@ -108,7 +138,7 @@ def update(id):
     return render_template("term/update.html", term=term)
 
 
-@bp.route("/<int:id>/delete", methods=("POST",))
+@bp.route("/term/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
     """Delete a post.

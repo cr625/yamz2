@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title h5 mb-3">{{ term.term_string }}</div>
+            <div class="card-text">
+                <div class="row">
+                    <div class="col-sm-2 bg-dark text-white ml-3">
+                        Score<br>
+                        Score<br>
+                        Score<br>
+                        Score<br>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="row">
+                            <div class="col">
+                                Definition
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                Examples
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="col-auto">
+                                {{ term.definition }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto">
+                                example
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

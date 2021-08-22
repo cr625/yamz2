@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block navbar_items %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.index') }}">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.add') }}">Contribute</a></li>
+        {% if g.user %}
+        <li class="nav-item"><a class="nav-link" href="#">{{ g.user['username'] }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-auto mt-5">
+            <div class="h1">Metadictionary</div>
+        </div>
+    </div>
+    <form class="row justify-content-center mt-5">
+        <div class="col-6">
+            <input type="text" class="form-control" id="search" placeholder="search for a term">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-dark mb-3">Search</button>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

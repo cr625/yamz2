@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% from 'bootstrap/form.html' import render_field %}
+
+{% block header %}
+<h1>{% block title %}New Term{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ render_field(form.term) }}
+        {{ render_field(form.definition) }}
+        {{ render_field(form.submit) }}
+    </div>
+</form>
+{% endblock %}
