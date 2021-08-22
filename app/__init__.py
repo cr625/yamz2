@@ -1,10 +1,13 @@
-from ensurepip import bootstrap
 import os
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_migrate import Migrate
 
 
+login_manager = LoginManager()
+login_manager.login_view = "auth.login"
 bootstrap = Bootstrap()
 db = SQLAlchemy()
 
@@ -17,21 +20,23 @@ def create_app(test_config=None):
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY="ASUFFICIENTLYCOMPLECATEDKEYTHATSHOULDBESTOREDINANENVIRONMENTVARIABLE",
-        BOOTSTRAP_BTN_STYLE="primary",
-        # SQLALCHEMY_DATABASE_URI="postgresql://postgres:PASS@localhost/yamz",
-        # SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        BOOTSTRAP_BTN_STYLE="dark",
+        SQLALCHEMY_DATABASE_URI="postgresql://postgres:PASS@localhost/yamz",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
-    from models import User, Role
+    from . import models
 
-    app.config["SECRET_KEY"] = "hard to guess string"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(
-        basedir, "data.sqlite"
-    )
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # testing setup
+    #    app.config["SECRET_KEY"] = "hard to guess string"
+    #    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(
+    #        basedir, "data.sqlite"
+    #    )
+    # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
-
+    login_manager.init_app(app)
     bootstrap.init_app(app)
+    migrate = Migrate(app, db)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -47,18 +52,13 @@ def create_app(test_config=None):
         pass
 
     # apply the blueprints to the app
-    from . import main
+    from .main import main as main_blueprint
 
-    app.register_blueprint(main.bp)
-    app.add_url_rule("/", endpoint="index")
+    app.register_blueprint(main_blueprint)
 
-    from . import auth
+    from .auth import auth as auth_blueprint
 
-    app.register_blueprint(auth.bp)
-
-    from . import term
-
-    app.register_blueprint(term.bp)
+    app.register_blueprint(auth_blueprint)
 
     @app.cli.command()
     def test():

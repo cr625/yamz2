@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 
+{% from 'bootstrap/form.html' import render_form %}
+
+
 {% block header %}
-  <h1>{% block title %}Log In{% endblock %}</h1>
+<h3 class="mt-5 ml-5">{% block title %}Log In{% endblock %}</h3>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Log In">
-  </form>
+<div class="row">
+  <div class="col-4 ml-5">
+    {{ render_form(form) }}
+  </div>
+</div>
+<div class="col m-4">
+    New user?
+    <a class="text-dark" href="{{ url_for('auth.register') }}">Click <u>here</u> to register
+    </a>
+</div>
 {% endblock %}

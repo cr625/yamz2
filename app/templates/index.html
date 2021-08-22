@@ -6,12 +6,11 @@
 {% block navbar_items %}
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.index') }}">Browse</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.add') }}">Contribute</a></li>
-        {% if g.user %}
-        <li class="nav-item"><a class="nav-link" href="#">{{ g.user['username'] }}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Contribute</a></li>
+        {% if current_user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout {{ current_user.username }}</a></li>
         {% else %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
