@@ -4,18 +4,18 @@
 
 
 {% block header %}
-<h3 class="mt-5 ml-5">{% block title %}Log In{% endblock %}</h3>
+{% block title %}Log In{% endblock %}
 {% endblock %}
 
 {% block content %}
 <div class="row">
-  <div class="col-4 ml-5">
+  <div class="col-4 ml-3 mt-3">
     {{ render_form(form) }}
   </div>
 </div>
-<div class="col m-4">
-    New user?
-    <a class="text-dark" href="{{ url_for('auth.register') }}">Click <u>here</u> to register
-    </a>
+<div class="row">
+  <div class="col mt-4">
+    New user? <a class="text-dark" href="{{ url_for('auth.register') }}">Click <u>here</u> to register</a>
+  </div>
 </div>
 {% endblock %}

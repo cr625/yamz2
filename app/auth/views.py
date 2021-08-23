@@ -1,5 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from .. import db
 from ..models import User
@@ -7,6 +7,12 @@ from . import auth
 from .forms import LoginForm, RegistrationForm
 
 from ..email import send_email
+
+
+@auth.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.ping()
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -43,6 +49,6 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        flash("You can now login.")
+        flash("You can now login.", "success")
         return redirect(url_for("auth.login"))
     return render_template("auth/register.html", form=form)

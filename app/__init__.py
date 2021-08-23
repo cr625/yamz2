@@ -1,15 +1,18 @@
 import os
+
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-
+from flask_moment import Moment
+from flask_sqlalchemy import SQLAlchemy
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 bootstrap = Bootstrap()
 db = SQLAlchemy()
+
+migrate = Migrate()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,7 +40,7 @@ def create_app(test_config=None):
     db.init_app(app)
     login_manager.init_app(app)
     bootstrap.init_app(app)
-    migrate = Migrate(app, db)
+    migrate.init_app(app, db)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -60,6 +63,10 @@ def create_app(test_config=None):
     from .auth import auth as auth_blueprint
 
     app.register_blueprint(auth_blueprint)
+
+    from .term import term as term_blueprint
+
+    app.register_blueprint(term_blueprint, url_prefix="/term")
 
     @app.cli.command()
     def test():
