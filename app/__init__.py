@@ -23,6 +23,7 @@ def create_app(test_config=None):
         BOOTSTRAP_BTN_STYLE="dark",
         SQLALCHEMY_DATABASE_URI="postgresql://postgres:PASS@localhost/yamz",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        YAMZ_ADMIN_EMAIL="christopher.b.rauch@gmail.com",
     )
 
     from . import models
