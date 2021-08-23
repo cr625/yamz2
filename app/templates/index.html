@@ -5,8 +5,8 @@
 {% block navbar_items %}
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('main.home') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.browse')}}">Browse</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('term.add') }}">Contribute</a></li>
         {% if current_user.is_authenticated %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout&nbsp;{{ current_user.username }}</a></li>

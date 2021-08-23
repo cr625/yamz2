@@ -13,7 +13,7 @@ from flask_sqlalchemy import get_debug_queries
 
 from .. import db
 from ..decorators import admin_required, permission_required
-from ..models import Permission, Role, User
+from ..models import Permission, Role, User, Term
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm
 
@@ -21,6 +21,16 @@ from .forms import EditProfileForm, EditProfileAdminForm
 @main.route("/")
 def index():
     return render_template("index.html")
+
+
+@main.route("/home")
+@login_required
+def home():
+    author = current_user
+    if author is None:
+        abort(404)
+    terms = author.terms.order_by(Term.term).all()
+    return render_template("home.html", terms=terms)
 
 
 @main.route("/user/<username>")

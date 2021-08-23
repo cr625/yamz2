@@ -5,8 +5,8 @@ from wtforms import ValidationError
 from ..models import Role, User
 
 
-class AddTermForm(FlaskForm):
+class TermForm(FlaskForm):
     term = StringField("Term", validators=[DataRequired()])
     definition = TextAreaField("Definition", validators=[DataRequired()])
-    examples = TextAreaField("Examples", validators=[DataRequired()])
+    source = StringField("Source")
     submit = SubmitField("Submit")

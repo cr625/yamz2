@@ -145,6 +145,7 @@ class Term(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     term = db.Column(db.String(64), unique=True)
     definition = db.Column(db.Text)
+    source = db.Column(db.Text)
     examples = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
