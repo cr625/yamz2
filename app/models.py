@@ -95,7 +95,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     terms = db.relationship("Term", backref="author", lazy="dynamic")
     tracking = db.relationship(
-        "Track", backref="tracks", lazy="dynamic", cascade="all, delete-orphan"
+        "Track", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
 
     def __init__(self, **kwargs):
@@ -163,7 +163,7 @@ class Term(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     tracker = db.relationship(
-        "Track", backref="track", lazy="dynamic", cascade="all, delete-orphan"
+        "Track", backref="term", lazy="dynamic", cascade="all, delete-orphan"
     )
 
     def track(self, user_id):

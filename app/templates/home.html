@@ -7,14 +7,5 @@ HOME
 {% endblock %}
 
 {% block content %}
-<div class="col mt-3 ml-5">
-    {% for tracked_term in tracked_terms %}
-    <dl class="row">
-        <dt class="col-sm3"><a class="text-dark" href="{{ url_for('term.show', id=tracked_term.id) }}">{{ tracked_term.term }}</a></dt>
-        <dd class="col-sm-9">{{ tracked_term.definition }} 
-        {% if current_user == tracked_term.author %}<a href="{{ url_for('term.update', id=tracked_term.id) }}">[update]</a>{% endif %}</dd>
-    </dl>
-    {%endfor%}
-
-</div>
+{% include '/term/_terms.html' %}
 {% endblock%}

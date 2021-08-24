@@ -1,15 +1,13 @@
-<div class="col mt-3 ml-5">
-    {% for tracked_term in tracked_terms %}
-    <dl class="row">
-        <dt class="col-sm3"><a class="text-dark" href="{{ url_for('term.show', id=tracked_term.id) }}">{{ tracked_term.term }}</a></dt>
-        <dd class="col-sm-9">{{ tracked_term.definition }} 
-        {% if current_user == tracked_term.author %}<a href="{{ url_for('term.update', id=tracked_term.id) }}">[update]</a>{% endif %}</dd>
-        {% if tracked_term.examples %}
-        <dd class="col-sm-9">
-            <p class="font-italic">Examples:</p> {{ tracked_term.examples }}
-        </dd>
-        {% endif %}
-    </dl>
-    {%endfor%}
+{% extends "base.html" %}
 
-</div>
+{% block header %}
+{% block title %}
+Tracked Terms{% endblock %}
+{% endblock %}
+
+{% block content %}
+{% for tracked in tracks %}
+{{ tracked.tracked_id}}
+{% endfor %}
+
+{% endblock%}

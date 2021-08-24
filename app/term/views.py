@@ -2,7 +2,7 @@ from flask import flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 
 from .. import db
-from ..models import Term, Permission
+from ..models import Term, Permission, Track
 from . import term
 from .forms import TermForm
 
@@ -73,3 +73,24 @@ def untrack(id):
     term.untrack(current_user.id)
     db.session.commit()
     return redirect(url_for("term.show", id=id))
+
+
+@term.route("/my")
+@login_required
+def show_my():
+    author = current_user
+    if author is None:
+        abort(404)
+    terms = author.terms.order_by(Term.term).all()
+    return render_template("/term/my_terms.html", terms=terms)
+
+
+@term.route("/tracked")
+@login_required
+def show_tracked():
+    current_user
+    if current_user is None:
+        abort(404)
+    # tracks = Track.query.filter_by(tracker_id=current_user.id).all()
+    tracks = current_user.tracking.order_by(Track.tracked_id).all()
+    return render_template("/term/tracked_terms.html", tracks=tracks)

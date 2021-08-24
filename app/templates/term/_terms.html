@@ -1,0 +1,17 @@
+<div class="col mt-3 ml-5">
+    {% for term in terms %}
+    <dl class="row">
+        <dt class="col-sm3"><a class="text-dark" href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a></dt>
+        <dd class="col-sm-9">{{ term.definition }} 
+        {% if current_user == term.author %}<a href="{{ url_for('term.update', id=term.id) }}">[update]</a>{% endif %}</dd>
+        {% if term.examples %}
+        <dd class="col-sm-9">
+            <p class="font-italic">Examples:</p> {{ term.examples }}
+        </dd>
+        {% endif %}
+    </dl>
+    {% else%}
+    No terms
+    {%endfor%}
+
+</div>
