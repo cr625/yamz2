@@ -26,10 +26,9 @@ def index():
 @main.route("/home")
 @login_required
 def home():
-    author = current_user
-    if author is None:
+    if current_user is None:
         abort(404)
-    terms = author.terms.order_by(Term.term).all()
+    terms = current_user.terms.order_by(Term.term).all()
     return render_template("home.html", terms=terms)
 
 

@@ -27,7 +27,6 @@ def add():
         term = Term(
             term=form.term.data,
             definition=form.definition.data,
-            examples=form.examples.data,
             author_id=current_user.id,
         )
         db.session.add(term)

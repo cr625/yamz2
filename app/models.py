@@ -107,6 +107,12 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
 
     @property
+    def tracked_terms(self):
+        return Term.query.join(Track, Track.tracker_id == self.id).filter(
+            Track.tracker_id == self.id
+        )
+
+    @property
     def password(self):
         raise AttributeError("password is not a readable attribute")
 
@@ -154,7 +160,6 @@ class Term(db.Model):
     term = db.Column(db.String(64), unique=True)
     definition = db.Column(db.Text)
     source = db.Column(db.Text)
-    examples = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     tracker = db.relationship(
