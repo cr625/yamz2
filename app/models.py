@@ -94,6 +94,9 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     password_hash = db.Column(db.String(128))
     terms = db.relationship("Term", backref="author", lazy="dynamic")
+    tracking = db.relationship(
+        "Track", backref="tracks", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -125,6 +128,11 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def is_tracking(self, term):
+        if term.id is None:
+            return False
+        return self.tracking.filter_by(tracked_id=term.id).first() is not None
+
     def __repr__(self):
         return "<User %r>" % self.username
 
@@ -149,3 +157,27 @@ class Term(db.Model):
     examples = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    tracker = db.relationship(
+        "Track", backref="track", lazy="dynamic", cascade="all, delete-orphan"
+    )
+
+    def track(self, user_id):
+        if not self.tracker.filter_by(tracker_id=user_id).first():
+            t = Track(tracker_id=user_id, tracked_id=self.id)
+            db.session.add(t)
+            db.session.commit()
+
+    def untrack(self, user_id):
+        t = self.tracker.filter_by(tracker_id=user_id).first()
+        if t:
+            db.session.delete(t)
+
+    def __repr__(self):
+        return "<Term %r>" % self.term
+
+
+class Track(db.Model):
+    __tablename__ = "tracks"
+    tracker_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    tracked_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

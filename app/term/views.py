@@ -56,3 +56,21 @@ def update(id):
     form.definition.data = term.definition
     form.source.data = term.source
     return render_template("/term/update.html", form=form)
+
+
+@term.route("/track/<int:id>")
+@login_required
+def track(id):
+    term = Term.query.get_or_404(id)
+    term.track(current_user.id)
+    db.session.commit()
+    return redirect(url_for("term.show", id=id))
+
+
+@term.route("/untrack/<int:id>")
+@login_required
+def untrack(id):
+    term = Term.query.get_or_404(id)
+    term.untrack(current_user.id)
+    db.session.commit()
+    return redirect(url_for("term.show", id=id))
