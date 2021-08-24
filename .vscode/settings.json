@@ -7,5 +7,14 @@
             "database": "\\\\wsl.localhost\\Ubuntu\\home\\chris\\code\\yamz2\\yamz"
         }
     ],
-    "sqltools.useNodeRuntime": true
+    "sqltools.useNodeRuntime": true,
+    "cSpell.enableFiletypes": [
+        "jinja",
+        "jinja-html",
+        "jinja-py"
+    ],
+    "cSpell.language": "en,en-US",
+    "cSpell.words": [
+        "YAMZ"
+    ]
 }
