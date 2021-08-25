@@ -2,9 +2,10 @@ from flask import flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 
 from .. import db
-from ..models import Term, Permission, Track
+from ..models import Term, Permission, Track, User
 from . import term
 from .forms import TermForm
+
 
 @term.route("/browse")
 def browse():
@@ -80,16 +81,16 @@ def show_my():
     author = current_user
     if author is None:
         abort(404)
-    my_terms = author.terms.order_by(Term.term).all()
-    return render_template("/term/my_terms.html", terms=my_terms)
+    terms = author.terms.order_by(Term.term).all()
+    return render_template("/term/my_terms.html", terms=terms)
 
 
 @term.route("/tracked")
 @login_required
 def show_tracked():
-    if current_user is None:
-        abort(404)
-    tracks = db.session.query(Term).select_from(Track).filter_by(tracker_id=current_user.id).join(Term, Track.tracker_id == Term.author_id) 
-    # tracks = Track.query.filter_by(tracker_id=current_user.id).all()
-    #tracks = current_user.tracking.order_by(Track.tracked_id).all()
-    return render_template("/term/tracked_terms.html", terms=tracks)
+    current_user
+    tracks = current_user.tracking
+    terms = db.session.query(Term).select_from(Track).filter_by(tracker_id = current_user.id).join(Term, Track.tracked_id == Term.id).all()
+    return render_template("/term/tracked_terms.html", tracks=tracks, terms=terms)
+
+
