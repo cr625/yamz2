@@ -33,7 +33,7 @@
 {% if user == current_user %}
 <div class="row">
     <div class="col mx-auto mt-3">
-        <a class="text-dark" href="{{ url_for('.edit_profile') }}">Edit my <u>Profile</u></a>
+        <a class="text-dark" href="{{ url_for('.edit_profile') }}"><u>Edit</u> my Profile</a>
     </div>
     {% if current_user.is_administrator() %}
     <div class="col mx-auto mt-3">

@@ -8,13 +8,15 @@
             <div class="card-text">
                 {{ term.definition }} 
                 </div>
-                {% if current_user == term.author %}<a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>{% endif %}
+                {% if current_user == term.author %}
+                <a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>
+                {% endif %}
                 {% if not current_user.is_tracking(term) %}
                 <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
                 {% else%}
                 <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
                 {% endif %}
-                
+
             </div>
         </div>
     </div>

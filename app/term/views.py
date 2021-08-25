@@ -90,7 +90,7 @@ def show_my():
 def show_tracked():
     current_user
     tracks = current_user.tracking
-    terms = db.session.query(Term).select_from(Track).filter_by(tracker_id = current_user.id).join(Term, Track.tracked_id == Term.id).all()
+    terms = db.session.query(Term).select_from(Track).filter_by(tracker_id = current_user.id).join(Term, Track.tracked_id == Term.id)
     return render_template("/term/tracked_terms.html", tracks=tracks, terms=terms)
 
 
