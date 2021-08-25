@@ -6,7 +6,6 @@ from ..models import Term, Permission, Track
 from . import term
 from .forms import TermForm
 
-
 @term.route("/browse")
 def browse():
     terms = Term.query.order_by(Term.term).all()
@@ -81,16 +80,16 @@ def show_my():
     author = current_user
     if author is None:
         abort(404)
-    terms = author.terms.order_by(Term.term).all()
-    return render_template("/term/my_terms.html", terms=terms)
+    my_terms = author.terms.order_by(Term.term).all()
+    return render_template("/term/my_terms.html", terms=my_terms)
 
 
 @term.route("/tracked")
 @login_required
 def show_tracked():
-    current_user
     if current_user is None:
         abort(404)
+    tracks = db.session.query(Term).select_from(Track).filter_by(tracker_id=current_user.id).join(Term, Track.tracker_id == Term.author_id) 
     # tracks = Track.query.filter_by(tracker_id=current_user.id).all()
-    tracks = current_user.tracking.order_by(Track.tracked_id).all()
-    return render_template("/term/tracked_terms.html", tracks=tracks)
+    #tracks = current_user.tracking.order_by(Track.tracked_id).all()
+    return render_template("/term/tracked_terms.html", terms=tracks)

@@ -2,12 +2,10 @@
 
 {% block header %}
 {% block title %}
-Tracked Terms{% endblock %}
+Tracked Terms
+{% endblock %}
 {% endblock %}
 
 {% block content %}
-{% for tracked in tracks %}
-{{ tracked.tracked_id}}
-{% endfor %}
-
+{% include '/term/_terms.html' %}
 {% endblock%}
