@@ -1,6 +1,6 @@
 from datetime import datetime
 import hashlib
-from we  rkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request, url_for
 from flask_login import UserMixin, AnonymousUserMixin
@@ -162,10 +162,9 @@ class Term(db.Model):
     source = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    tracker = db.relationship(
-        "Track", backref="term", lazy="dynamic", cascade="all, delete-orphan"
-    )
-
+    tracker = db.relationship("Track", backref="term",
+                              lazy="dynamic", cascade="all, delete-orphan")
+    
     def track(self, user_id):
         if not self.tracker.filter_by(tracker_id=user_id).first():
             t = Track(tracker_id=user_id, tracked_id=self.id)
@@ -176,13 +175,17 @@ class Term(db.Model):
         t = self.tracker.filter_by(tracker_id=user_id).first()
         if t:
             db.session.delete(t)
-
+    
     def __repr__(self):
         return "<Term %r>" % self.term
 
 
 class Track(db.Model):
     __tablename__ = "tracks"
-    tracker_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
-    tracked_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
+    tracker_id = db.Column(db.Integer, db.ForeignKey(
+        "users.id"), primary_key=True)
+    tracked_id = db.Column(db.Integer, db.ForeignKey(
+        "terms.id"), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
