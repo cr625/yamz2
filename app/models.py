@@ -139,6 +139,9 @@ class User(UserMixin, db.Model):
             return False
         return self.tracking.filter_by(tracked_id=term.id).first() is not None
 
+
+
+
     def __repr__(self):
         return "<User %r>" % self.username
 
@@ -153,7 +156,25 @@ class AnonymousUser(AnonymousUserMixin):
 
 login_manager.anonymous_user = AnonymousUser
 
-
+class Follow(db.Model):
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('terms.id'),
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('terms.id'),
+                            primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    
+class Relationship(db.Model):
+    __tablename__ = "relationships"
+    parent_id = db.Column(db.Integer, db.ForeignKey(
+        "terms.id"), primary_key=True)
+    child_id = db.Column(db.Integer, db.ForeignKey(
+        "terms.id"), primary_key=True)
+    predicate = db.Column(db.String(64), default="isExampleOf")
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    
 class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.Integer, primary_key=True)
@@ -164,6 +185,24 @@ class Term(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     tracker = db.relationship("Track", backref="term",
                               lazy="dynamic", cascade="all, delete-orphan")
+    parents = db.relationship('Relationship',
+                               foreign_keys=[Relationship.parent_id],
+                               backref=db.backref('parent', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    children = db.relationship('Relationship',
+                               foreign_keys=[Relationship.child_id],
+                               backref=db.backref('child', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return "<Term %r>" % self.term
+    
+    def exemplify(self, child, relationship="isExampleOf"):
+        rel = Relationship(parent_id=self.id, child_id=child.id)
+        db.session.add(rel)
+        db.session.commit()
     
     def track(self, user_id):
         if not self.tracker.filter_by(tracker_id=user_id).first():
@@ -175,6 +214,40 @@ class Term(db.Model):
         t = self.tracker.filter_by(tracker_id=user_id).first()
         if t:
             db.session.delete(t)
+    
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+    
+    def follow(self, term):
+        if not self.is_following(term):
+            f = Follow(follower=self, followed=term)
+            db.session.add(f)
+
+    def unfollow(self, term):
+        f = self.followed.filter_by(followed_id=term.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_following(self, term):
+        if term.id is None:
+            return False
+        return self.followed.filter_by(
+            followed_id=term.id).first() is not None
+
+    def is_followed_by(self, term):
+        if term.id is None:
+            return False
+        return self.followers.filter_by(
+            follower_id=term.id).first() is not None
+    
     
     def __repr__(self):
         return "<Term %r>" % self.term
