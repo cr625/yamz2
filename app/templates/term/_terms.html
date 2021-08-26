@@ -17,6 +17,7 @@
             <a href="{{ url_for('term.delete', id=term.id) }}">[delete]</a>
             {% elif current_user.is_administrator() %}
             <a href="{{ url_for('term.update', id=term.id) }}">[admin update]</a>
+            <a href="{{ url_for('term.update', id=term.id) }}">[admin delete]</a>
             {% endif %}
         </dd>
     </dl>

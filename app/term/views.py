@@ -9,18 +9,14 @@ from .forms import TermForm
 
 @term.route("/browse")
 def browse():
-    terms = Term.query.order_by(Term.term).all()
-    if request.args.get('template') is not None:
+    template = request.args.get('template')
+    if template is not None:
+        terms = Term.query.filter_by(source=template).order_by(Term.term).all()
         template = request.args.get('template').upper()
         return render_template('term/browse_by.html', terms=terms, template=template)
     else:
+        terms = Term.query.order_by(Term.term).all()
         return render_template("term/index.html", terms=terms)
-
-@term.route("/browse/<template>")
-def browse_by(template):
-    terms = Term.query.order_by(Term.term).all()
-    template = request.args.get('schema')
-    return render_template("term/index.html", terms=terms, template=template)
 
 @term.route("/<int:id>")
 def show(id):
@@ -56,6 +52,7 @@ def add(id):
         child = Term(
             term=form.term.data,
             definition=form.definition.data,
+            source=form.source.data,
             author=current_user._get_current_object(),
         )
         db.session.add(child)
@@ -64,7 +61,7 @@ def add(id):
         parent.exemplify(child, relationship)
         flash("Term added.", "success")
         return redirect(url_for("main.index"))
-    return render_template("term/predicate.html", form=form, parent=parent, relationship=relationship)
+    return render_template("term/object.html", form=form, parent=parent, relationship=relationship)
 
 
 @term.route("/update/<int:id>", methods=["GET", "POST"])
