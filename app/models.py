@@ -5,7 +5,12 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
+import enum
 
+class Relationships:
+    isExampleOf = 'example'
+    isTypeOf = 'type'
+    isCategoryOf = 'category'
 
 class Permission:
     FOLLOW = 1
