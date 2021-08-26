@@ -10,8 +10,17 @@ from .forms import TermForm
 @term.route("/browse")
 def browse():
     terms = Term.query.order_by(Term.term).all()
-    return render_template("term/index.html", terms=terms)
+    if request.args.get('template') is not None:
+        template = request.args.get('template').upper()
+        return render_template('term/browse_by.html', terms=terms, template=template)
+    else:
+        return render_template("term/index.html", terms=terms)
 
+@term.route("/browse/<template>")
+def browse_by(template):
+    terms = Term.query.order_by(Term.term).all()
+    template = request.args.get('schema')
+    return render_template("term/index.html", terms=terms, template=template)
 
 @term.route("/<int:id>")
 def show(id):
@@ -19,9 +28,9 @@ def show(id):
     return render_template("term/display.html", term=term)
 
 
-@term.route("/add", methods=["GET", "POST"])
+@term.route("/create", methods=["GET", "POST"])
 @login_required
-def add():
+def create():
     form = TermForm()
     if form.validate_on_submit():
         term = Term(
@@ -35,10 +44,12 @@ def add():
         return redirect(url_for("main.index"))
     return render_template("term/add.html", form=form)
 
-@term.route("/add/<int:id>/<relationship>/", methods=["GET", "POST"])
+@term.route("/add/<int:id>/", methods=["GET", "POST"])
 @login_required
-def predicate(id, relationship):
-    relationship = "isExampleOf"
+def add(id):
+    relationship = request.args.get('relationship')
+    if not relationship == "example":
+        return "Only examples are supported right now."
     parent = Term.query.get_or_404(id)
     form = TermForm()
     if form.validate_on_submit():

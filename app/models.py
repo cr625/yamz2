@@ -7,7 +7,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 import enum
 
-class Relationships:
+class Relationship(enum.Enum):
     isExampleOf = 'example'
     isTypeOf = 'type'
     isCategoryOf = 'category'
