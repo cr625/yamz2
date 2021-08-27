@@ -100,10 +100,14 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     password_hash = db.Column(db.String(128))
+    
+    # create db relationships
     terms = db.relationship("Term", backref="author", lazy="dynamic")
     tracking = db.relationship(
         "Track", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -188,6 +192,8 @@ class Term(db.Model):
     source = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    
+    # data related to terms in tables/classes indicated in the first parameter
     tracker = db.relationship("Track", backref="term",
                               lazy="dynamic", cascade="all, delete-orphan")
     children = db.relationship('Relationship',
@@ -200,6 +206,8 @@ class Term(db.Model):
                                backref=db.backref('child', lazy='joined'),
                                lazy='dynamic',
                                cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='term', lazy='dynamic')
+
 
     def __repr__(self):
         return "<Term %r>" % self.term
@@ -275,3 +283,13 @@ class Track(db.Model):
     tracked_id = db.Column(db.Integer, db.ForeignKey(
         "terms.id"), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    term_id = db.Column(db.Integer, db.ForeignKey('terms.id'))

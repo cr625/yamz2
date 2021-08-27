@@ -19,6 +19,7 @@
                 {% endif %}
                 <!--has.permission?-->
                 <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
+                <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
             </div>
         </div>
         <div class="card-footer">
@@ -28,13 +29,12 @@
                 <a href="{{ url_for('term.show', id=child.id) }}">{{ child.term }}</a>
             <br>
                 {% endfor %}
-            {% elif term.has_parents() %}
+            {% endif %}
+            {% if term.has_parents() %}
                 {% for parent in parents %}
                 <a href="{{ url_for('term.show', id=parent.id) }}">{{ parent.term }}</a>
             <br>
                 {% endfor %}
-            {% else %}
-                None
             {% endif %}
         </div>
     </div>
