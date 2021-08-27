@@ -1,0 +1,8 @@
+for u in User.query.all():
+     if u.role is None:
+         if u.email == app.config['YAMZ_ADMIN_EMAIL']:
+             u.role = admin_role
+         else:
+             u.role = default_role
+
+db.session.commit()

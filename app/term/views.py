@@ -2,16 +2,21 @@ from flask import flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 
 from .. import db
-from ..models import Term, Permission, Track, User
+from ..models import Relationship, Term, Permission, Track, User
 from . import term
 from .forms import TermForm
 
 
 @term.route("/browse")
 def browse():
-    terms = Term.query.order_by(Term.term).all()
-    return render_template("term/index.html", terms=terms)
-
+    template = request.args.get('template')
+    if template is not None:
+        terms = Term.query.filter_by(source=template).order_by(Term.term).all()
+        template = request.args.get('template').upper()
+        return render_template('term/browse_by.html', terms=terms, template=template)
+    else:
+        terms = Term.query.order_by(Term.term).all()
+        return render_template("term/index.html", terms=terms)
 
 @term.route("/<int:id>")
 def show(id):
@@ -19,21 +24,44 @@ def show(id):
     return render_template("term/display.html", term=term)
 
 
-@term.route("/add", methods=["GET", "POST"])
+@term.route("/create", methods=["GET", "POST"])
 @login_required
-def add():
+def create():
     form = TermForm()
     if form.validate_on_submit():
         term = Term(
             term=form.term.data,
             definition=form.definition.data,
-            author_id=current_user.id,
+            author=current_user._get_current_object(),
         )
         db.session.add(term)
         db.session.commit()
         flash("Term added.", "success")
         return redirect(url_for("main.index"))
     return render_template("term/add.html", form=form)
+
+@term.route("/add/<int:id>/", methods=["GET", "POST"])
+@login_required
+def add(id):
+    relationship = request.args.get('relationship')
+    if not relationship == "example":
+        return "Only examples are supported right now."
+    parent = Term.query.get_or_404(id)
+    form = TermForm()
+    if form.validate_on_submit():
+        child = Term(
+            term=form.term.data,
+            definition=form.definition.data,
+            source=form.source.data,
+            author=current_user._get_current_object(),
+        )
+        db.session.add(child)
+        db.session.commit()
+        db.session.refresh(child)
+        parent.exemplify(child, relationship)
+        flash("Term added.", "success")
+        return redirect(url_for("main.index"))
+    return render_template("term/object.html", form=form, parent=parent, relationship=relationship)
 
 
 @term.route("/update/<int:id>", methods=["GET", "POST"])
@@ -55,6 +83,17 @@ def update(id):
     form.definition.data = term.definition
     form.source.data = term.source
     return render_template("/term/update.html", form=form)
+
+@term.route("/delete/<int:id>", methods=["GET", "POST"])
+@login_required
+def delete(id):
+    term = Term.query.get_or_404(id)
+    if current_user != term.author and not current_user.can(Permission.ADMIN):
+        abort(403)
+    db.session.delete(term)
+    db.session.commit()
+    flash("The term has been deleted.")
+    return redirect(url_for("main.index"))
 
 
 @term.route("/track/<int:id>")

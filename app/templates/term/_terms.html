@@ -2,12 +2,22 @@
     {% for term in terms %}
     <dl class="row">
         <dt class="col-sm3"><a class="text-dark" href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a></dt>
-        <dd class="col-sm-9">{{ term.definition }} 
+        <dd class="col-sm-9">{{ term.definition }}
             <a href="{{ url_for('term.show', id=term.id) }}">[view]</a>
+            {% if current_user.is_authenticated %}
+                {% if not current_user.is_tracking(term) %}
+                <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
+                
+                {% else %}
+                <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
+                {% endif %}
+            {% endif %}
             {% if current_user == term.author %}
             <a href="{{ url_for('term.update', id=term.id) }}">[update]</a>
+            <a href="{{ url_for('term.delete', id=term.id) }}">[delete]</a>
             {% elif current_user.is_administrator() %}
             <a href="{{ url_for('term.update', id=term.id) }}">[admin update]</a>
+            <a href="{{ url_for('term.update', id=term.id) }}">[admin delete]</a>
             {% endif %}
         </dd>
     </dl>
