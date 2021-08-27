@@ -21,8 +21,15 @@ def browse():
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
-    return render_template("term/display.html", term=term)
-
+    children = db.session.query(Term).select_from(Relationship).filter_by(parent_id = id).join(Term, Relationship.child_id == Term.id)
+    parents = db.session.query(Term).select_from(Relationship).filter_by(child_id = id).join(Term, Relationship.parent_id == Term.id)
+    # there's a better way to do this once we have more complex relationships
+    if children.count() > 0:
+        return render_template("term/display.html", term=term, children=children)
+    elif parents.count() > 0:
+        return render_template("term/display.html", term=term, parents=parents)
+    else:
+        return render_template("term/display.html", term=term)
 
 @term.route("/create", methods=["GET", "POST"])
 @login_required

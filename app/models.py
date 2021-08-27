@@ -190,12 +190,12 @@ class Term(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     tracker = db.relationship("Track", backref="term",
                               lazy="dynamic", cascade="all, delete-orphan")
-    parents = db.relationship('Relationship',
+    children = db.relationship('Relationship',
                               foreign_keys=[Relationship.parent_id],
                               backref=db.backref('parent', lazy='joined'),
                               lazy='dynamic',
                               cascade='all, delete-orphan')
-    children = db.relationship('Relationship',
+    parents = db.relationship('Relationship',
                                foreign_keys=[Relationship.child_id],
                                backref=db.backref('child', lazy='joined'),
                                lazy='dynamic',
@@ -231,6 +231,17 @@ class Term(db.Model):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
 
+    def has_children(self):
+        if not self:
+            return False
+        return self.children.count() > 0
+    
+    def has_parents(self):
+        if not self:
+            return False
+        return self.parents.count() > 0
+    
+    
     def follow(self, term):
         if not self.is_following(term):
             f = Follow(follower=self, followed=term)
