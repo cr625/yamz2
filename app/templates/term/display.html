@@ -18,8 +18,24 @@
                 <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
                 {% endif %}
                 <!--has.permission?-->
-                <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add example]</a>
+                <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
             </div>
+        </div>
+        <div class="card-footer">
+            <h6 class="card-title">Related terms</h6>
+            {% if term.has_children() %}
+                {% for child in children %}
+                <a href="{{ url_for('term.show', id=child.id) }}">{{ child.term }}</a>
+            <br>
+                {% endfor %}
+            {% elif term.has_parents() %}
+                {% for parent in parents %}
+                <a href="{{ url_for('term.show', id=parent.id) }}">{{ parent.term }}</a>
+            <br>
+                {% endfor %}
+            {% else %}
+                None
+            {% endif %}
         </div>
     </div>
 </div>
