@@ -2,9 +2,9 @@ from flask import flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 
 from .. import db
-from ..models import Relationship, Term, Permission, Track, User
+from ..models import Relationship, Term, Permission, Track, Comment
 from . import term
-from .forms import TermForm
+from .forms import TermForm, CommentForm
 
 
 @term.route("/browse")
@@ -70,6 +70,20 @@ def add(id):
         return redirect(url_for("main.index"))
     return render_template("term/object.html", form=form, parent=parent, relationship=relationship)
 
+@term.route("/comment/<int:id>", methods=["GET", "POST"])
+@login_required
+def comment(id):
+    term = Term.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data,
+                          term=term,
+                          author=current_user._get_current_object())
+        db.session.add(comment)
+        db.session.commit()
+        flash("Comment added.", "success")
+        return redirect(url_for("term.show", id=term.id))
+    return render_template("term/comment.html", form=form, term=term)
 
 @term.route("/update/<int:id>", methods=["GET", "POST"])
 @login_required

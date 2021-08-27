@@ -10,3 +10,7 @@ class TermForm(FlaskForm):
     definition = TextAreaField("Definition", validators=[DataRequired()])
     source = StringField("Source")
     submit = SubmitField("Submit")
+
+class CommentForm(FlaskForm):
+    body = TextAreaField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')
