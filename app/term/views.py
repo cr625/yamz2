@@ -96,6 +96,25 @@ def delete_comment(id):
     flash("The comment has been deleted.")
     return redirect(url_for("term.show", id=comment.term_id))
 
+
+@term.route("/comment/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_comment(id):
+    comment = Comment.query.get_or_404(id)
+    term = comment.term
+    if current_user != comment.author and not current_user.can(Permission.ADMIN):
+        abort(403)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment.body = form.body.data
+        db.session.add(comment)
+        db.session.commit()
+        flash("The comment has been updated.")
+        return redirect(url_for("term.show", id=term.id))
+    form.body.data = comment.body
+    return render_template("/term/comment.html", form=form, term=term)
+
+
 @term.route("/update/<int:id>", methods=["GET", "POST"])
 @login_required
 def update(id):

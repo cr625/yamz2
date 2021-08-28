@@ -16,11 +16,12 @@ class Relationship(enum.Enum):
 
 class Permission:
     FOLLOW = 1
+    # TRACK = 2 # don't forget to update the db when you add a new permission
     COMMENT = 2
     WRITE = 4
     MODERATE = 8
     ADMIN = 16
-
+    
 
 class Role(db.Model):
     __tablename__ = "roles"

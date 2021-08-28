@@ -40,7 +40,8 @@
                 <h6 class="card-title">Comments</h6>
                 {% for comment in comments %}
                 <p>
-                    {{ comment.body }} [edit] 
+                    {{ comment.body }}
+                    <a href="{{ url_for('term.edit_comment',id=comment.id)}}">[edit]</a>
                     <a href="{{ url_for('term.delete_comment',id=comment.id)}}">[delete]</a>
                     <br>
                     by <a href="{{ url_for('main.user', username=comment.author.username) }}">{{ comment.author.username }}</a>
