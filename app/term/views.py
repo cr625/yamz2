@@ -23,9 +23,7 @@ def show(id):
     term = Term.query.get_or_404(id)
     children = db.session.query(Term).select_from(Relationship).filter_by(parent_id = id).join(Term, Relationship.child_id == Term.id)
     parents = db.session.query(Term).select_from(Relationship).filter_by(child_id = id).join(Term, Relationship.parent_id == Term.id)
-    comments = "these are comments"
-    # comments = db.session.query(Comment).filter_by(term_id=id).order_by(Comment.date.desc()).all()
-   
+    comments = term.comments.order_by(Comment.timestamp.desc()).all()
        
     # children.count() > 0:
     # parents.count() > 0:
@@ -72,7 +70,7 @@ def add(id):
         return redirect(url_for("main.index"))
     return render_template("term/object.html", form=form, parent=parent, relationship=relationship)
 
-@term.route("/comment/<int:id>", methods=["GET", "POST"])
+@term.route("/comment/add/<int:id>", methods=["GET", "POST"])
 @login_required
 def comment(id):
     term = Term.query.get_or_404(id)
@@ -86,6 +84,17 @@ def comment(id):
         flash("Comment added.", "success")
         return redirect(url_for("term.show", id=term.id))
     return render_template("term/comment.html", form=form, term=term)
+
+@term.route("/comment/delete/<int:id>", methods=["GET", "POST"])
+@login_required
+def delete_comment(id):
+    comment = Comment.query.get_or_404(id)
+    if current_user != comment.author and not current_user.can(Permission.ADMIN):
+        abort(403)
+    db.session.delete(comment)
+    db.session.commit()
+    flash("The comment has been deleted.")
+    return redirect(url_for("term.show", id=comment.term_id))
 
 @term.route("/update/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -105,7 +114,7 @@ def update(id):
     form.term.data = term.term
     form.definition.data = term.definition
     form.source.data = term.source
-    return render_template("/term/update.html", form=form)
+    return render_template("/term/update.html", form=form, term=term)
 
 @term.route("/delete/<int:id>", methods=["GET", "POST"])
 @login_required

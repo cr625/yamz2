@@ -2,8 +2,9 @@
 
 {% from 'bootstrap/form.html' import render_form %}
 
-{% block header %}
 {% block title %}Update{% endblock %}
+{% block header %}
+Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
 {% endblock %}
 
 {% block content %}

@@ -2,10 +2,11 @@
 
 {% from 'bootstrap/form.html' import render_form %}
 
+{% block title %}Comment on {{ term.term }}{% endblock %}
 {% block header %}
-{% block title %}
+
 Comment on <a href="{{url_for("term.show", id=term.id)}}">{{ term.term }}</a>
-{% endblock %}
+
 {% endblock %}
 
 {% block content %}

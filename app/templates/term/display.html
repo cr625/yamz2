@@ -1,7 +1,7 @@
 {% extends "base.html" %}
+{% block title %}{{term.term}}{% endblock %}
 
 {% block content %}
-
 <div class="container">
     <div class="card">
         <div class="card-body">
@@ -27,15 +27,28 @@
             {% if term.has_children() %}
                 {% for child in children %}
                 <a href="{{ url_for('term.show', id=child.id) }}">{{ child.term }}</a>
-            <br>
+                <br>
                 {% endfor %}
             {% endif %}
             {% if term.has_parents() %}
                 {% for parent in parents %}
                 <a href="{{ url_for('term.show', id=parent.id) }}">{{ parent.term }}</a>
-            <br>
+                <br>
                 {% endfor %}
             {% endif %}
+            {% if term.has_comments() %}
+                <h6 class="card-title">Comments</h6>
+                {% for comment in comments %}
+                <p>
+                    {{ comment.body }} [edit] 
+                    <a href="{{ url_for('term.delete_comment',id=comment.id)}}">[delete]</a>
+                    <br>
+                    by <a href="{{ url_for('main.user', username=comment.author.username) }}">{{ comment.author.username }}</a>
+                {% endfor %}
+                </p>
+            <br>
+            {% endif %}
+    
         </div>
     </div>
 </div>

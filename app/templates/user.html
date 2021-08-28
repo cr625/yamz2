@@ -12,8 +12,7 @@
     <div class="col mb-2 ml-3">
         {% if user.name %}{{ user.name }}{% endif %}
         {% if user.location %}
-        from <a class="text-dark" href="http://maps.google.com/?q={{ user.location }}"><u>{{ user.location
-                }}</u></a><br>
+        from <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
         {% endif %}
     </div>
 </div>
@@ -33,7 +32,7 @@
 {% if user == current_user %}
 <div class="row">
     <div class="col mx-auto mt-3">
-        <a class="text-dark" href="{{ url_for('.edit_profile') }}"><u>Edit</u> my Profile</a>
+        <a href="{{ url_for('.edit_profile') }}">Edit my Profile</a>
     </div>
     {% if current_user.is_administrator() %}
     <div class="col mx-auto mt-3">

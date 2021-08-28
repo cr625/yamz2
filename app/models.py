@@ -103,6 +103,7 @@ class User(UserMixin, db.Model):
     
     # create db relationships
     terms = db.relationship("Term", backref="author", lazy="dynamic")
+    comments = db.relationship("Comment", backref="author", lazy="dynamic")
     tracking = db.relationship(
         "Track", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -248,6 +249,17 @@ class Term(db.Model):
         if not self:
             return False
         return self.parents.count() > 0
+    
+    def has_related(self):
+        if not self:
+            return False
+        return self.parents.count() > 0 or self.children.count() > 0
+        
+    
+    def has_comments(self):
+        if not self:
+            return False
+        return self.comments.count() > 0
     
     
     def follow(self, term):
