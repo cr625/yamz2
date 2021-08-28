@@ -24,11 +24,11 @@ def show(id):
     children = db.session.query(Term).select_from(Relationship).filter_by(parent_id = id).join(Term, Relationship.child_id == Term.id)
     parents = db.session.query(Term).select_from(Relationship).filter_by(child_id = id).join(Term, Relationship.parent_id == Term.id)
     comments = term.comments.order_by(Comment.timestamp.desc()).all()
-       
-    # children.count() > 0:
+    vote_count = term.get_vote_count()
+    # children.count() > 0
     # parents.count() > 0:
         
-    return render_template("term/display.html", term=term, children=children, parents=parents, comments=comments)
+    return render_template("term/display.html", term=term, children=children, parents=parents, comments=comments, vote_count=vote_count)
     
 
 @term.route("/create", methods=["GET", "POST"])
@@ -155,6 +155,13 @@ def track(id):
     db.session.commit()
     return redirect(url_for("term.show", id=id))
 
+@term.route("/vote/<int:id>/<vote_type>")
+@login_required
+def cast_vote(id, vote_type):
+    term = Term.query.get_or_404(id)
+    term.vote(current_user.id, vote_type)
+    db.session.commit()
+    return redirect(url_for("term.show", id=id))
 
 @term.route("/untrack/<int:id>")
 @login_required

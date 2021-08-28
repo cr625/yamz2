@@ -9,9 +9,9 @@
             <div class="card-text">
                 <div class="row">
                     <div class="col-sm-1 text-center">
-                        <i class="fas fa-arrow-up"></i><br>
-                        0<br>
-                        <i class="fas fa-arrow-down"></i><br>
+                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='up')}}"><i class="fas fa-chevron-up"></i></a><br>
+                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='cancel')}}">{{ vote_count }}</a><br>
+                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='down')}}"><i class="fas fa-chevron-down"></i></a><br>
                     </div>
                     <div class="col">
                     {{ term.definition }} 
