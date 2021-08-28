@@ -21,7 +21,7 @@ class Permission:
     WRITE = 4
     MODERATE = 8
     ADMIN = 16
-    
+
 
 class Role(db.Model):
     __tablename__ = "roles"
@@ -101,15 +101,16 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     password_hash = db.Column(db.String(128))
-    
+
     # create db relationships
     terms = db.relationship("Term", backref="author", lazy="dynamic")
     comments = db.relationship("Comment", backref="author", lazy="dynamic")
     tracking = db.relationship(
         "Track", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
+    voter = db.relationship("Vote", backref="user",
+                            lazy="dynamic", cascade="all, delete-orphan")
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
-
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -194,22 +195,23 @@ class Term(db.Model):
     source = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    
+
     # data related to terms in tables/classes indicated in the first parameter
     tracker = db.relationship("Track", backref="term",
                               lazy="dynamic", cascade="all, delete-orphan")
+    votes = db.relationship("Vote", backref="term",
+                             lazy="dynamic", cascade="all, delete-orphan")
     children = db.relationship('Relationship',
-                              foreign_keys=[Relationship.parent_id],
-                              backref=db.backref('parent', lazy='joined'),
-                              lazy='dynamic',
-                              cascade='all, delete-orphan')
-    parents = db.relationship('Relationship',
-                               foreign_keys=[Relationship.child_id],
-                               backref=db.backref('child', lazy='joined'),
+                               foreign_keys=[Relationship.parent_id],
+                               backref=db.backref('parent', lazy='joined'),
                                lazy='dynamic',
                                cascade='all, delete-orphan')
+    parents = db.relationship('Relationship',
+                              foreign_keys=[Relationship.child_id],
+                              backref=db.backref('child', lazy='joined'),
+                              lazy='dynamic',
+                              cascade='all, delete-orphan')
     comments = db.relationship('Comment', backref='term', lazy='dynamic')
-
 
     def __repr__(self):
         return "<Term %r>" % self.term
@@ -219,6 +221,24 @@ class Term(db.Model):
         db.session.add(rel)
         db.session.commit()
 
+    def vote(self, user_id, vote_type):
+        vote = self.votes.filter_by(voter_id=user_id).first()
+        if vote is None:
+            v = Vote(voter_id=user_id, term_id=self.id, vote_type=vote_type)
+            db.session.add(v)
+            db.session.commit()
+        elif vote.vote_type != vote_type:
+            vote.vote_type = vote_type
+            db.session.commit()
+        
+    def get_vote_count(self):
+        if self.votes is None:
+            return 0
+        else:
+            up_votes = self.votes.filter_by(vote_type="up").count() # make vote.UP vote.DOWN properties instead
+            down_votes = self.votes.filter_by(vote_type="down").count()
+        return up_votes - down_votes
+    
     def track(self, user_id):
         if not self.tracker.filter_by(tracker_id=user_id).first():
             t = Track(tracker_id=user_id, tracked_id=self.id)
@@ -245,24 +265,22 @@ class Term(db.Model):
         if not self:
             return False
         return self.children.count() > 0
-    
+
     def has_parents(self):
         if not self:
             return False
         return self.parents.count() > 0
-    
+
     def has_related(self):
         if not self:
             return False
         return self.parents.count() > 0 or self.children.count() > 0
-        
-    
+
     def has_comments(self):
         if not self:
             return False
         return self.comments.count() > 0
-    
-    
+
     def follow(self, term):
         if not self.is_following(term):
             f = Follow(follower=self, followed=term)
@@ -297,6 +315,7 @@ class Track(db.Model):
         "terms.id"), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
@@ -306,3 +325,13 @@ class Comment(db.Model):
     disabled = db.Column(db.Boolean)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     term_id = db.Column(db.Integer, db.ForeignKey('terms.id'))
+
+
+class Vote(db.Model):
+    __tablename__ = "votes"
+    voter_id = db.Column(db.Integer, db.ForeignKey(
+        "users.id"), primary_key=True)
+    term_id = db.Column(db.Integer, db.ForeignKey(
+        "terms.id"), primary_key=True)
+    vote_type = db.Column(db.Text) # constrain up or down
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
