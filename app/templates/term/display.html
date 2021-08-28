@@ -7,19 +7,28 @@
         <div class="card-body">
             <h5 class="card-title mb-3">{{ term.term }}</h5>
             <div class="card-text">
-                {{ term.definition }} 
-                {% if current_user == term.author %}
-                <a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>
-                <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
-                {% endif %}
-                {% if not current_user.is_tracking(term) %}
-                <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
-                {% else%}
-                <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
-                {% endif %}
-                <!--has.permission?-->
-                <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
-                <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
+                <div class="row">
+                    <div class="col-sm-1 text-center">
+                        <i class="fas fa-arrow-up"></i><br>
+                        0<br>
+                        <i class="fas fa-arrow-down"></i><br>
+                    </div>
+                    <div class="col">
+                    {{ term.definition }} 
+                    {% if current_user == term.author %}
+                    <a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>
+                    <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
+                    {% endif %}
+                    {% if not current_user.is_tracking(term) %}
+                    <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
+                    {% else%}
+                    <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
+                    {% endif %}
+                    <!--has.permission?-->
+                    <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
+                    <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-footer">
