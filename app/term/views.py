@@ -1,5 +1,6 @@
 from flask import flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import distinct
 
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment
@@ -9,27 +10,55 @@ from .forms import TermForm, CommentForm
 
 @term.route("/browse")
 def browse():
-    template = request.args.get('template')
+    template = request.args.get("template")
     if template is not None:
         terms = Term.query.filter_by(source=template).order_by(Term.term).all()
-        template = request.args.get('template').upper()
-        return render_template('term/browse_by.html', terms=terms, template=template)
+        template = request.args.get("template").upper()
+        return render_template("term/browse_by.html", terms=terms, template=template)
     else:
+        query = db.session.query(Term.source.distinct().label("source"))
+        templates = [row.source for row in query.all()]
         terms = Term.query.order_by(Term.term).all()
-        return render_template("term/index.html", terms=terms)
+        return render_template("term/index.html", terms=terms, templates=templates)
+
+
+@term.route("/browse/template")
+def get_templates():
+    # templates = db.session.query(distinct(Term.source))
+    query = db.session.query(Term.source.distinct().label("source"))
+    templates = [row.source for row in query.all()]
+    return render_template("term/templates.html", templates=templates)
+
 
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
-    children = db.session.query(Term).select_from(Relationship).filter_by(parent_id = id).join(Term, Relationship.child_id == Term.id)
-    parents = db.session.query(Term).select_from(Relationship).filter_by(child_id = id).join(Term, Relationship.parent_id == Term.id)
+    children = (
+        db.session.query(Term)
+        .select_from(Relationship)
+        .filter_by(parent_id=id)
+        .join(Term, Relationship.child_id == Term.id)
+    )
+    parents = (
+        db.session.query(Term)
+        .select_from(Relationship)
+        .filter_by(child_id=id)
+        .join(Term, Relationship.parent_id == Term.id)
+    )
     comments = term.comments.order_by(Comment.timestamp.desc()).all()
     vote_count = term.get_vote_count()
     # children.count() > 0
     # parents.count() > 0:
-        
-    return render_template("term/display.html", term=term, children=children, parents=parents, comments=comments, vote_count=vote_count)
-    
+
+    return render_template(
+        "term/display.html",
+        term=term,
+        children=children,
+        parents=parents,
+        comments=comments,
+        vote_count=vote_count,
+    )
+
 
 @term.route("/create", methods=["GET", "POST"])
 @login_required
@@ -47,10 +76,11 @@ def create():
         return redirect(url_for("main.index"))
     return render_template("term/add.html", form=form)
 
+
 @term.route("/add/<int:id>/", methods=["GET", "POST"])
 @login_required
 def add(id):
-    relationship = request.args.get('relationship')
+    relationship = request.args.get("relationship")
     if not relationship == "example":
         return "Only examples are supported right now."
     parent = Term.query.get_or_404(id)
@@ -68,7 +98,10 @@ def add(id):
         parent.exemplify(child, relationship)
         flash("Term added.", "success")
         return redirect(url_for("main.index"))
-    return render_template("term/object.html", form=form, parent=parent, relationship=relationship)
+    return render_template(
+        "term/object.html", form=form, parent=parent, relationship=relationship
+    )
+
 
 @term.route("/comment/add/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -76,14 +109,15 @@ def comment(id):
     term = Term.query.get_or_404(id)
     form = CommentForm()
     if form.validate_on_submit():
-        comment = Comment(body=form.body.data,
-                          term=term,
-                          author=current_user._get_current_object())
+        comment = Comment(
+            body=form.body.data, term=term, author=current_user._get_current_object()
+        )
         db.session.add(comment)
         db.session.commit()
         flash("Comment added.", "success")
         return redirect(url_for("term.show", id=term.id))
     return render_template("term/comment.html", form=form, term=term)
+
 
 @term.route("/comment/delete/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -135,6 +169,7 @@ def update(id):
     form.source.data = term.source
     return render_template("/term/update.html", form=form, term=term)
 
+
 @term.route("/delete/<int:id>", methods=["GET", "POST"])
 @login_required
 def delete(id):
@@ -155,6 +190,7 @@ def track(id):
     db.session.commit()
     return redirect(url_for("term.show", id=id))
 
+
 @term.route("/vote/<int:id>/<vote_type>")
 @login_required
 def cast_vote(id, vote_type):
@@ -162,6 +198,7 @@ def cast_vote(id, vote_type):
     term.vote(current_user.id, vote_type)
     db.session.commit()
     return redirect(url_for("term.show", id=id))
+
 
 @term.route("/untrack/<int:id>")
 @login_required
@@ -187,7 +224,10 @@ def show_my():
 def show_tracked():
     current_user
     tracks = current_user.tracking
-    terms = db.session.query(Term).select_from(Track).filter_by(tracker_id = current_user.id).join(Term, Track.tracked_id == Term.id)
+    terms = (
+        db.session.query(Term)
+        .select_from(Track)
+        .filter_by(tracker_id=current_user.id)
+        .join(Term, Track.tracked_id == Term.id)
+    )
     return render_template("/term/tracked_terms.html", tracks=tracks, terms=terms)
-
-

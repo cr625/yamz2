@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sources (Schema Templates)
+{% endblock %}
+
+{% block header %}
+Sources (Schema Templates)
+{% endblock %}
+
+
+{% block content %}
+
+
+{% for template in templates  %}
+    {% if template != None %}
+    <a href="{{ url_for('term.browse', template=template) }}">{{ template }}</a><br>    
+    {% endif %}
+{% endfor %}
+{% endblock%}

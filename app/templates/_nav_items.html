@@ -1,0 +1,22 @@
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.browse') }}">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.create')}}">Contribute</a></li>
+        {% if current_user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.show_my')}}">My Terms</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.show_tracked')}}">Tracked Terms</a></li>
+        <li class="nav-item"><a class="nav-link"
+                href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout&nbsp;
+                <span class="text-uppercase">{{ current_user.username }}</span></a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+        {% endif %}
+    </ul>
+    <form class="d-flex ml-4">
+        <input class="form-control" type="search" placeholder="Search for a term" aria-label="Search">
+        <button class="btn-dark" type="submit">Search</button>
+    </form>
+</div>
