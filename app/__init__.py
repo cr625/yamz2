@@ -20,6 +20,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 def create_app(test_config="test_config.py"):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
+    app.config["CELERY_BROKER_URL"] = "redis://localhost:6379/0"
+    app.config["CELERY_RESULT_BACKEND"] = "redis://localhost:6379/0"
 
     # set common config values
     try:
