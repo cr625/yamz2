@@ -19,14 +19,16 @@
                     <a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>
                     <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
                     {% endif %}
-                    {% if not current_user.is_tracking(term) %}
-                    <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
-                    {% else%}
-                    <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
-                    {% endif %}
+                    {% if current_user.is_authenticated%}
+                        {% if not current_user.is_tracking(term) %}
+                        <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
+                        {% else%}
+                        <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
+                        {% endif %}
                     <!--has.permission?-->
                     <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
                     <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
+                    {% endif %}
                     </div>
                 </div>
             </div>
