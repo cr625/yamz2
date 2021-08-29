@@ -22,6 +22,11 @@ def browse():
         return render_template("term/index.html", terms=terms, templates=templates)
 
 
+@term.app_template_filter("template_source")
+def template_source_filter(template):
+    pass  # put the row comprehension here
+
+
 @term.route("/browse/template")
 def get_templates():
     # templates = db.session.query(distinct(Term.source))
@@ -30,6 +35,7 @@ def get_templates():
     return render_template("term/templates.html", templates=templates)
 
 
+# /term/id returns a term using the display template including related terms, comments and vote count
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
