@@ -52,6 +52,10 @@ def create_app(test_config="test_config.py"):
 
     app.register_blueprint(term_blueprint, url_prefix="/term")
 
+    from .graph import graph as graph_blueprint
+
+    app.register_blueprint(graph_blueprint, url_prefix="/graph")
+
     # register command line functions
     @app.cli.command()
     def test():
