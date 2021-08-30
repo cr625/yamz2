@@ -1,4 +1,4 @@
-from instance.config import SECRET_KEY
+from instance.config import REDIS_URL
 import os
 
 from flask import Flask, render_template
@@ -7,6 +7,8 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from redis import Redis
+import rq
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -21,8 +23,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 def create_app(test_config="test_config.py"):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
-    app.config["CELERY_BROKER_URL"] = "redis://localhost:6379/0"
-    app.config["CELERY_RESULT_BACKEND"] = "redis://localhost:6379/0"
+    app.redis = Redis.from_url(REDIS_URL)
+    app.task_queue = rq.Queue("microblog-tasks", connection=app.redis)
 
     # set common config values
     try:
@@ -42,6 +44,8 @@ def create_app(test_config="test_config.py"):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    app.redis = Redis.from_url(REDIS_URL)
+    app.task_queue = rq.Queue("yamz-tasks", connection=app.redis)
 
     # apply the blueprints to the app
     from .main import main as main_blueprint
