@@ -6,12 +6,13 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 bootstrap = Bootstrap()
 db = SQLAlchemy()
-
+mail = Mail()
 migrate = Migrate()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -40,6 +41,7 @@ def create_app(test_config="test_config.py"):
     login_manager.init_app(app)
     bootstrap.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
 
     # apply the blueprints to the app
     from .main import main as main_blueprint
