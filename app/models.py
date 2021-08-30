@@ -6,6 +6,7 @@ from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 import redis
+import rq
 
 
 class Permission:
@@ -106,6 +107,7 @@ class User(UserMixin, db.Model):
         "Vote", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
     comments = db.relationship("Comment", backref="author", lazy="dynamic")
+    tasks = db.relationship("Task", backref="user", lazy="dynamic")
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -335,10 +337,11 @@ class Vote(db.Model):
 
 
 class Task(db.Model):
+    __tablename__ = "tasks"
     id = db.Column(db.String(36), primary_key=True)
     name = db.Column(db.String(128), index=True)
     description = db.Column(db.String(128))
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     complete = db.Column(db.Boolean, default=False)
 
     def get_rq_job(self):
