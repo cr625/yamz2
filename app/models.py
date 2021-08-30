@@ -86,6 +86,13 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+followers = db.Table(
+    "followers",
+    db.Column("follower_id", db.Integer, db.ForeignKey("users.id")),
+    db.Column("followed_id", db.Integer, db.ForeignKey("users.id")),
+)
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -110,6 +117,14 @@ class User(UserMixin, db.Model):
     )
     comments = db.relationship("Comment", backref="author", lazy="dynamic")
     tasks = db.relationship("Task", backref="user", lazy="dynamic")
+    followed = db.relationship(
+        "User",
+        secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref("followers", lazy="dynamic"),
+        lazy="dynamic",
+    )
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -147,6 +162,33 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+
+    # this is for terms from the users I follow
+    def followed_terms(self):
+        return (
+            Term.query.join(followers, (followers.c.followed_id == Term.user_id))
+            .filter(followers.c.follower_id == self.id)
+            .order_by(Term.timestamp.desc())
+        )
+
+    # this is for terms for the users I follow and my own terms
+    def my_followed_terms(self):
+        followed = Term.query.join(
+            followers, (followers.c.followed_id == Term.user_id)
+        ).filter(followers.c.follower_id == self.id)
+        own = Term.query.filter_by(user_id=self.id)
+        return followed.union(own).order_by(Term.timestamp.desc())
+
     def is_tracking(self, term):
         if term.id is None:
             return False
@@ -179,13 +221,6 @@ class AnonymousUser(AnonymousUserMixin):
 
 
 login_manager.anonymous_user = AnonymousUser
-
-
-class Follow(db.Model):
-    __tablename__ = "follows"
-    follower_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
-    followed_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Relationship(db.Model):
@@ -267,21 +302,6 @@ class Term(db.Model):
         if t:
             db.session.delete(t)
 
-    followed = db.relationship(
-        "Follow",
-        foreign_keys=[Follow.follower_id],
-        backref=db.backref("follower", lazy="joined"),
-        lazy="dynamic",
-        cascade="all, delete-orphan",
-    )
-    followers = db.relationship(
-        "Follow",
-        foreign_keys=[Follow.followed_id],
-        backref=db.backref("followed", lazy="joined"),
-        lazy="dynamic",
-        cascade="all, delete-orphan",
-    )
-
     def has_children(self):
         if not self:
             return False
@@ -301,26 +321,6 @@ class Term(db.Model):
         if not self:
             return False
         return self.comments.count() > 0
-
-    def follow(self, term):
-        if not self.is_following(term):
-            f = Follow(follower=self, followed=term)
-            db.session.add(f)
-
-    def unfollow(self, term):
-        f = self.followed.filter_by(followed_id=term.id).first()
-        if f:
-            db.session.delete(f)
-
-    def is_following(self, term):
-        if term.id is None:
-            return False
-        return self.followed.filter_by(followed_id=term.id).first() is not None
-
-    def is_followed_by(self, term):
-        if term.id is None:
-            return False
-        return self.followers.filter_by(follower_id=term.id).first() is not None
 
     def __repr__(self):
         return "<Term %r>" % self.term

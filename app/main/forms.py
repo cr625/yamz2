@@ -52,3 +52,7 @@ class EditProfileAdminForm(FlaskForm):
             and User.query.filter_by(username=field.data).first()
         ):
             raise ValidationError("Username already in use.")
+
+
+class FollowForm(FlaskForm):
+    submit = SubmitField("Follow")
