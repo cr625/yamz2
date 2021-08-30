@@ -2,16 +2,10 @@ from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app, request, url_for
+from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
-import enum
-
-
-class Relationship(enum.Enum):
-    isExampleOf = 'example'
-    isTypeOf = 'type'
-    isCategoryOf = 'category'
+import redis
 
 
 class Permission:
@@ -108,9 +102,10 @@ class User(UserMixin, db.Model):
     tracking = db.relationship(
         "Track", backref="user", lazy="dynamic", cascade="all, delete-orphan"
     )
-    voter = db.relationship("Vote", backref="user",
-                            lazy="dynamic", cascade="all, delete-orphan")
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    voter = db.relationship(
+        "Vote", backref="user", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    comments = db.relationship("Comment", backref="author", lazy="dynamic")
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -169,20 +164,16 @@ login_manager.anonymous_user = AnonymousUser
 
 
 class Follow(db.Model):
-    __tablename__ = 'follows'
-    follower_id = db.Column(db.Integer, db.ForeignKey('terms.id'),
-                            primary_key=True)
-    followed_id = db.Column(db.Integer, db.ForeignKey('terms.id'),
-                            primary_key=True)
+    __tablename__ = "follows"
+    follower_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Relationship(db.Model):
     __tablename__ = "relationships"
-    parent_id = db.Column(db.Integer, db.ForeignKey(
-        "terms.id"), primary_key=True)
-    child_id = db.Column(db.Integer, db.ForeignKey(
-        "terms.id"), primary_key=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
+    child_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
     predicate = db.Column(db.String(64), default="isExampleOf")
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -197,21 +188,27 @@ class Term(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     # data related to terms in tables/classes indicated in the first parameter
-    tracker = db.relationship("Track", backref="term",
-                              lazy="dynamic", cascade="all, delete-orphan")
-    votes = db.relationship("Vote", backref="term",
-                             lazy="dynamic", cascade="all, delete-orphan")
-    children = db.relationship('Relationship',
-                               foreign_keys=[Relationship.parent_id],
-                               backref=db.backref('parent', lazy='joined'),
-                               lazy='dynamic',
-                               cascade='all, delete-orphan')
-    parents = db.relationship('Relationship',
-                              foreign_keys=[Relationship.child_id],
-                              backref=db.backref('child', lazy='joined'),
-                              lazy='dynamic',
-                              cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='term', lazy='dynamic')
+    tracker = db.relationship(
+        "Track", backref="term", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    votes = db.relationship(
+        "Vote", backref="term", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    children = db.relationship(
+        "Relationship",
+        foreign_keys=[Relationship.parent_id],
+        backref=db.backref("parent", lazy="joined"),
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+    parents = db.relationship(
+        "Relationship",
+        foreign_keys=[Relationship.child_id],
+        backref=db.backref("child", lazy="joined"),
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+    comments = db.relationship("Comment", backref="term", lazy="dynamic")
 
     def __repr__(self):
         return "<Term %r>" % self.term
@@ -230,15 +227,17 @@ class Term(db.Model):
         elif vote.vote_type != vote_type:
             vote.vote_type = vote_type
             db.session.commit()
-        
+
     def get_vote_count(self):
         if self.votes is None:
             return 0
         else:
-            up_votes = self.votes.filter_by(vote_type="up").count() # make vote.UP vote.DOWN properties instead
+            up_votes = self.votes.filter_by(
+                vote_type="up"
+            ).count()  # make vote.UP vote.DOWN properties instead
             down_votes = self.votes.filter_by(vote_type="down").count()
         return up_votes - down_votes
-    
+
     def track(self, user_id):
         if not self.tracker.filter_by(tracker_id=user_id).first():
             t = Track(tracker_id=user_id, tracked_id=self.id)
@@ -250,16 +249,20 @@ class Term(db.Model):
         if t:
             db.session.delete(t)
 
-    followed = db.relationship('Follow',
-                               foreign_keys=[Follow.follower_id],
-                               backref=db.backref('follower', lazy='joined'),
-                               lazy='dynamic',
-                               cascade='all, delete-orphan')
-    followers = db.relationship('Follow',
-                                foreign_keys=[Follow.followed_id],
-                                backref=db.backref('followed', lazy='joined'),
-                                lazy='dynamic',
-                                cascade='all, delete-orphan')
+    followed = db.relationship(
+        "Follow",
+        foreign_keys=[Follow.follower_id],
+        backref=db.backref("follower", lazy="joined"),
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+    followers = db.relationship(
+        "Follow",
+        foreign_keys=[Follow.followed_id],
+        backref=db.backref("followed", lazy="joined"),
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
 
     def has_children(self):
         if not self:
@@ -294,14 +297,12 @@ class Term(db.Model):
     def is_following(self, term):
         if term.id is None:
             return False
-        return self.followed.filter_by(
-            followed_id=term.id).first() is not None
+        return self.followed.filter_by(followed_id=term.id).first() is not None
 
     def is_followed_by(self, term):
         if term.id is None:
             return False
-        return self.followers.filter_by(
-            follower_id=term.id).first() is not None
+        return self.followers.filter_by(follower_id=term.id).first() is not None
 
     def __repr__(self):
         return "<Term %r>" % self.term
@@ -309,10 +310,8 @@ class Term(db.Model):
 
 class Track(db.Model):
     __tablename__ = "tracks"
-    tracker_id = db.Column(db.Integer, db.ForeignKey(
-        "users.id"), primary_key=True)
-    tracked_id = db.Column(db.Integer, db.ForeignKey(
-        "terms.id"), primary_key=True)
+    tracker_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    tracked_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -323,15 +322,32 @@ class Comment(db.Model):
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     disabled = db.Column(db.Boolean)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    term_id = db.Column(db.Integer, db.ForeignKey('terms.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
 
 
 class Vote(db.Model):
     __tablename__ = "votes"
-    voter_id = db.Column(db.Integer, db.ForeignKey(
-        "users.id"), primary_key=True)
-    term_id = db.Column(db.Integer, db.ForeignKey(
-        "terms.id"), primary_key=True)
-    vote_type = db.Column(db.Text) # constrain up or down
+    voter_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    term_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
+    vote_type = db.Column(db.Text)  # constrain up or down
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Task(db.Model):
+    id = db.Column(db.String(36), primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    description = db.Column(db.String(128))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    complete = db.Column(db.Boolean, default=False)
+
+    def get_rq_job(self):
+        try:
+            rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
+        except (redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+            return None
+        return rq_job
+
+    def get_progress(self):
+        job = self.get_rq_job()
+        return job.meta.get("progress", 0) if job is not None else 100
