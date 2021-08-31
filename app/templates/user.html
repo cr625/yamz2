@@ -52,11 +52,11 @@
 
 {% if user == current_user %}
 <div class="row">
-    <div class="col ml-3 mt-3">
+    <div class="col-md-6 ml-3 mt-3">
         <h5>My terms</h5>
         {% for my_term in my_terms %}
-        <a href="{{ url_for('term.show', id=my_term.id) }}">{{ my_term.term}}</a><br>
-        {% endfor %}
+        <a href="{{ url_for('term.show', id=my_term.id) }}">{{ my_term.term }}</a>{% if not loop.last %},{% endif %}{%
+        endfor %}
     </div>
 </div>
 <div class="row">
