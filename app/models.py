@@ -173,12 +173,24 @@ class User(UserMixin, db.Model):
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
 
+    def followed_users(self):
+        return self.followed
+
+    def following_users(user):
+        return user.followed
+
+    # def followed_users(self):
+    #    return User.query.join(followers, (followers.c.followed_id == User.id)).filter(
+    #        followers.c.follower_id == self.id
+    #    )
+
     # this is for terms from the users I follow
+
     def followed_terms(self):
         return (
-            Term.query.join(followers, (followers.c.followed_id == Term.user_id))
+            Term.query.join(followers, (followers.c.followed_id == Term.author_id))
             .filter(followers.c.follower_id == self.id)
-            .order_by(Term.timestamp.desc())
+            .order_by(Term.term)
         )
 
     # this is for terms for the users I follow and my own terms

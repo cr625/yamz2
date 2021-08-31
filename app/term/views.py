@@ -228,7 +228,6 @@ def show_my():
 @term.route("/tracked")
 @login_required
 def show_tracked():
-    current_user
     tracks = current_user.tracking
     terms = (
         db.session.query(Term)

@@ -13,7 +13,7 @@ from flask_sqlalchemy import get_debug_queries
 
 from .. import db
 from ..decorators import admin_required, permission_required
-from ..models import Permission, Role, User, Term
+from ..models import Permission, Role, User, Term, Track
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, FollowForm
 
@@ -34,14 +34,33 @@ def home():
 
 
 @main.route("/user/<username>")
+@login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    terms = [
-        {"author": user, "term": "Test #1"},
-        {"author": user, "term": "Test post #2"},
-    ]
+    my_terms = current_user.terms.order_by(Term.term).all()
+    user_terms = user.terms.order_by(Term.term).all()
+    tracked_terms = (
+        db.session.query(Term)
+        .select_from(Track)
+        .filter_by(tracker_id=current_user.id)
+        .join(Term, Track.tracked_id == Term.id)
+    )
+    followed_terms = current_user.followed_terms()
+    # shortcut to turn the object into a dictionary
+    followed_users = [row.username for row in current_user.followed_users()]
+    following_users = [row.username for row in user.following_users()]
     form = FollowForm()
-    return render_template("user.html", user=user, terms=terms, form=form)
+    return render_template(
+        "user.html",
+        user=user,
+        user_terms=user_terms,
+        my_terms=my_terms,
+        tracked_terms=tracked_terms,
+        followed_users=followed_users,
+        following_users=following_users,
+        followed_terms=followed_terms,
+        form=form,
+    )
 
 
 @main.route("/edit-profile", methods=["GET", "POST"])
@@ -96,16 +115,16 @@ def follow(username):
         user = User.query.filter_by(username=username).first()
         if user is None:
             flash("User {} not found.".format(username))
-            return redirect(url_for("index"))
+            return redirect(url_for("main.index"))
         if user == current_user:
             flash("You cannot follow yourself!")
-            return redirect(url_for("user", username=username))
+            return redirect(url_for("main.user", username=username))
         current_user.follow(user)
         db.session.commit()
         flash("You are following {}!".format(username))
-        return redirect(url_for("user", username=username))
+        return redirect(url_for("main.user", username=username))
     else:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
 
 @main.route("/unfollow/<username>", methods=["POST"])
@@ -116,13 +135,13 @@ def unfollow(username):
         user = User.query.filter_by(username=username).first()
         if user is None:
             flash("User {} not found.".format(username))
-            return redirect(url_for("index"))
+            return redirect(url_for("main.index"))
         if user == current_user:
             flash("You cannot unfollow yourself!")
-            return redirect(url_for("user", username=username))
+            return redirect(url_for("main.user", username=username))
         current_user.unfollow(user)
         db.session.commit()
         flash("You are not following {}.".format(username))
-        return redirect(url_for("user", username=username))
+        return redirect(url_for("main.user", username=username))
     else:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
