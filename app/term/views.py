@@ -3,23 +3,53 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import distinct
 
 from .. import db
-from ..models import Relationship, Term, Permission, Track, Comment
+from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import TermForm, CommentForm
+from .forms import EmptyForm, TermForm, CommentForm, TagForm
 
 
-@term.route("/browse")
-def browse():
+@term.route("/")
+@term.route("/index")
+def index():
+    page = request.args.get("page", 1, type=int)
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=10)
+    next_url = url_for("term.index", page=terms.next_num) if terms.has_next else None
+    prev_url = url_for("term.index", page=terms.prev_num) if terms.has_prev else None
+
+    return render_template(
+        "term/index.html",
+        terms=terms.items,
+        next_url=next_url,
+        prev_url=prev_url,
+        page=page,
+    )
+
+
+@term.route("/filter")
+def filter():
     template = request.args.get("template")
     if template is not None:
         terms = Term.query.filter_by(source=template).order_by(Term.term).all()
         template = request.args.get("template").upper()
         return render_template("term/browse_by.html", terms=terms, template=template)
-    else:
-        query = db.session.query(Term.source.distinct().label("source"))
-        templates = [row.source for row in query.all()]
-        terms = Term.query.order_by(Term.term).all()
-        return render_template("term/index.html", terms=terms, templates=templates)
+
+
+@term.route("/browse")
+def browse():
+    page = request.args.get("page", 1, type=int)
+    query = db.session.query(Term.source.distinct().label("source"))
+    templates = [row.source for row in query.all()]
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=15)
+    next_url = url_for("term.browse", page=terms.next_num) if terms.has_next else None
+    prev_url = url_for("term.browse", page=terms.prev_num) if terms.has_prev else None
+    return render_template(
+        "term/browse.html",
+        terms=terms.items,
+        templates=templates,
+        next_url=next_url,
+        prev_url=prev_url,
+        page=page,
+    )
 
 
 @term.app_template_filter("template_source")
@@ -197,13 +227,14 @@ def track(id):
     return redirect(url_for("term.show", id=id))
 
 
+# TODO: Make this a post request
 @term.route("/vote/<int:id>/<vote_type>")
 @login_required
 def cast_vote(id, vote_type):
     term = Term.query.get_or_404(id)
     term.vote(current_user.id, vote_type)
     db.session.commit()
-    return redirect(url_for("term.show", id=id))
+    return redirect(url_for("term.comment", id=id))
 
 
 @term.route("/untrack/<int:id>")
@@ -236,3 +267,36 @@ def show_tracked():
         .join(Term, Track.tracked_id == Term.id)
     )
     return render_template("/term/tracked_terms.html", tracks=tracks, terms=terms)
+
+
+@term.route("/tag/<int:id>", methods=["GET", "POST"])
+@login_required
+def tag(id):
+    form = TagForm()
+    term = Term.query.get_or_404(id)
+    if term is None:
+        flash("Term id {} not found.".format(id))
+        return redirect(url_for("main.index"))
+    if form.validate_on_submit():
+        name = form.name.data
+        value = form.value.data
+        tag = Tag.query.filter_by(term_id=term.id, name=name).first()
+        if tag is None:
+            tag = Tag(
+                term_id=term.id, name=name, value=value
+            )  # compare this to the tag in the db you're doing it twice
+            term.tags.append(tag)
+            db.session.commit()
+            flash(
+                "Tag {} with value {} applied to {}".format(
+                    tag.name, tag.value, term.term
+                )
+            )
+        else:
+            flash(
+                "Term {} already tagged with name {} value {}.".format(
+                    term.term, tag.name, tag.value
+                )
+            )
+        return redirect(url_for("term.show", id=term.id))
+    return render_template("/term/tag.html", form=form, term=term)

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block title %}
+Tag
+{% endblock %}
+
+{% block header %}
+Tag Term {{ term.term}}
+{% endblock %}
+{% block content %}
+{{ render_form(form) }}
+
+{% endblock %}

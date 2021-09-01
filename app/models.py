@@ -9,6 +9,7 @@ import redis
 import rq
 import time
 import json
+import re
 
 
 class Permission:
@@ -18,6 +19,36 @@ class Permission:
     WRITE = 4
     MODERATE = 8
     ADMIN = 16
+
+
+DEFAULT_TAGS = {
+    "schema",
+    "vocabulary",
+    "source",
+    "definition",
+    "archive",
+}
+
+
+def slugify(s):
+    return re.sub("[^\w]+", "-", s).lower()
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+    id = db.Column(db.Integer, primary_key=True)
+    term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
+    name = db.Column(db.String(64))
+    value = db.Column(db.String(64))
+    # slug = db.Column(db.String(64), unique=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        super(Tag, self).__init__(*args, **kwargs)
+        # self.slug = slugify(self.name, self.value)
+
+    def __repr__(self):
+        return "<Tag %s>" % self.name
 
 
 class Role(db.Model):
@@ -246,10 +277,14 @@ class Relationship(db.Model):
 class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.Integer, primary_key=True)
-    term = db.Column(db.String(64), unique=True)
+    term = db.Column(db.String(64))
     definition = db.Column(db.Text)
     source = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    created_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_timestamp = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     # data related to terms in tables/classes indicated in the first parameter
@@ -274,6 +309,10 @@ class Term(db.Model):
         cascade="all, delete-orphan",
     )
     comments = db.relationship("Comment", backref="term", lazy="dynamic")
+
+    tags = db.relationship(
+        "Tag", backref="term", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return "<Term %r>" % self.term
