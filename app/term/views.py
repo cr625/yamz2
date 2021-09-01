@@ -12,7 +12,7 @@ from .forms import EmptyForm, TermForm, CommentForm, TagForm
 @term.route("/index")
 def index():
     page = request.args.get("page", 1, type=int)
-    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=10)
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=25)
     next_url = url_for("term.index", page=terms.next_num) if terms.has_next else None
     prev_url = url_for("term.index", page=terms.prev_num) if terms.has_prev else None
 
@@ -39,7 +39,7 @@ def browse():
     page = request.args.get("page", 1, type=int)
     query = db.session.query(Term.source.distinct().label("source"))
     templates = [row.source for row in query.all()]
-    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=15)
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=25)
     next_url = url_for("term.browse", page=terms.next_num) if terms.has_next else None
     prev_url = url_for("term.browse", page=terms.prev_num) if terms.has_prev else None
     return render_template(

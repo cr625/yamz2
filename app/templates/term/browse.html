@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 
 {% block title %}
-Browse Terms
-{% endblock %}
-
 {% block header %}
 Browse Terms
+{% endblock %}
 {% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col mt-3">
+    <div class="col">
         <h5>Choose filter</h5>
         {% for template in templates %}
         {% if template != None %}
@@ -19,13 +17,14 @@ Browse Terms
         {% endfor %}
     </div>
 </div>
-<div class="row">
-    <div class="col mt-3">
+<div class="row pt-3">
+    <div class="col">
         <h5>All</h5>
         {% include '/term/_terms.html' %}
     </div>
 </div>
 <div>
-    {% if prev_url %}<a href="{{ prev_url }}">&lt;previous</a>{% endif %} [{{ page }}] {% if next_url %}<a href="{{ next_url }}">next&gt;</a>{% endif %}
+    {% if prev_url %}<a href="{{ prev_url }}">&lt;previous</a>{% endif %} [{{ page }}] {% if next_url %}<a
+        href="{{ next_url }}">next&gt;</a>{% endif %}
 </div>
 {% endblock%}

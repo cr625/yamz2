@@ -21,13 +21,14 @@ class Permission:
     ADMIN = 16
 
 
-DEFAULT_TAGS = {
+DEFAULT_TAGS = [
+    "user",
     "schema",
     "vocabulary",
     "source",
     "definition",
     "archive",
-}
+]
 
 
 def slugify(s):

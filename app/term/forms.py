@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
-from ..models import Role, User
+from ..models import Role, User, DEFAULT_TAGS
 
 
 class TermForm(FlaskForm):
@@ -10,6 +10,8 @@ class TermForm(FlaskForm):
     definition = TextAreaField("Definition", validators=[DataRequired()])
     source = StringField("Source")
     submit = SubmitField("Submit")
+    metadata = SelectField("Metadata", choices=DEFAULT_TAGS, default=DEFAULT_TAGS[0])
+    tag = StringField("Tag")
 
 
 class CommentForm(FlaskForm):

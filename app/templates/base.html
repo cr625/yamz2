@@ -8,51 +8,66 @@
   <head>
     <title>{% block title %}{% endblock %} - YAMZ</title>
     <script src="https://kit.fontawesome.com/e22132fbbe.js" crossorigin="anonymous"></script>
-    {{ bootstrap.load_css() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
   </head>
 
 <body>
 
-  {{ bootstrap.load_js() }}
-
-  {% block navbar %}
-  <!--default navbar overridden in templates-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+    crossorigin="anonymous"></script>
+  <!--START-->
   <div class="container">
-    <nav class="navbar navbar-expand-sm navbar-light bg-white">
-      <div class="container-fluid ">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">YAMZ</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        {% block navbar_items %}
-        {% include '_nav_items.html' %}
-        {% endblock %}
-      </div>
-    </nav>
-  </div>
-  {% endblock %}
-
-  <div class="container">
-    <section class="content">
-      <header>
-        <div class="col h4 ml-5 mt-3">
-          {% block header %}{% endblock %}
+    <!-- NAVBAR -->
+    <div class="container">
+      {% block navbar %}
+      <nav class="navbar navbar-expand-sm navbar-light bg-white">
+        <div class="container-fluid ">
+          <a class="navbar-brand" href="{{ url_for('main.index') }}">YAMZ</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          {% block navbar_items %}
+          {% include '_nav_items.html' %}
+          {% endblock %}
         </div>
-      </header>
+      </nav>
+      {% endblock %}
+    </div>
+    <!-- END NAVBAR -->
 
-      {% for message in get_flashed_messages() %}
-      <div class="alert alert-secondary" role="alert">{{ message }}
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <!-- LAYOUT -->
+    <div class="container gx-4">
+      <!-- HEADER -->
+      <div class="container pt-2">
+        <div class="row">
+          <div class="col h4 pb-2">
+            {% block header %}{% endblock %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-dark alert-dismissible" role="alert" id="liveAlert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
-      {% endfor %}
+      <!-- END HEADER -->
 
-      <div class="col ml-5 mt-3">
-        {% block content %}
-
-        {% endblock %}
+      <!--CONTENT-->
+      <div class="container">
+        {% block content %}{% endblock %}
       </div>
-    </section>
+      <!--END CONTENT-->
+    </div>
+    <!-- END LAYOUT -->
   </div>
-
+  <!--END-->
 </body>

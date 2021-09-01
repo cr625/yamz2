@@ -24,7 +24,7 @@ def create_app(test_config="test_config.py"):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     app.redis = Redis.from_url(REDIS_URL)
-    app.task_queue = rq.Queue("microblog-tasks", connection=app.redis)
+    app.task_queue = rq.Queue("yamz-tasks", connection=app.redis)
 
     # set common config values
     try:
