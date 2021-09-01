@@ -273,11 +273,11 @@ def show_tracked():
 @login_required
 def tag(id):
     form = TagForm()
+    term = Term.query.get_or_404(id)
+    if term is None:
+        flash("Term id {} not found.".format(id))
+        return redirect(url_for("main.index"))
     if form.validate_on_submit():
-        term = Term.query.get_or_404(id)
-        if term is None:
-            flash("Term id {} not found.".format(id))
-            return redirect(url_for("main.index"))
         name = form.name.data
         value = form.value.data
         tag = Tag.query.filter_by(term_id=term.id, name=name).first()
@@ -299,4 +299,4 @@ def tag(id):
                 )
             )
         return redirect(url_for("term.show", id=term.id))
-    return render_template("/term/tag.html", form=form)
+    return render_template("/term/tag.html", form=form, term=term)
