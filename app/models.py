@@ -322,6 +322,15 @@ class Term(db.Model):
         db.session.add(rel)
         db.session.commit()
 
+    def tag(self, name, value):
+        tag = Tag.query.filter_by(term_id=self.id, name=name, value=value).first()
+        if tag is None:
+            tag = Tag(
+                term_id=self.id, name=name, value=value
+            )  # compare this to the tag in the db you're doing it twice
+            db.session.add(tag)
+            db.session.commit()
+
     def vote(self, user_id, vote_type):
         vote = self.votes.filter_by(voter_id=user_id).first()
         if vote is None:

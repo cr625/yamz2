@@ -69,6 +69,7 @@ def get_templates():
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
+    tags = term.tags
     children = (
         db.session.query(Term)
         .select_from(Relationship)
@@ -89,6 +90,7 @@ def show(id):
     return render_template(
         "term/display.html",
         term=term,
+        tags=tags,
         children=children,
         parents=parents,
         comments=comments,
@@ -280,23 +282,6 @@ def tag(id):
     if form.validate_on_submit():
         name = form.name.data
         value = form.value.data
-        tag = Tag.query.filter_by(term_id=term.id, name=name).first()
-        if tag is None:
-            tag = Tag(
-                term_id=term.id, name=name, value=value
-            )  # compare this to the tag in the db you're doing it twice
-            term.tags.append(tag)
-            db.session.commit()
-            flash(
-                "Tag {} with value {} applied to {}".format(
-                    tag.name, tag.value, term.term
-                )
-            )
-        else:
-            flash(
-                "Term {} already tagged with name {} value {}.".format(
-                    term.term, tag.name, tag.value
-                )
-            )
+        term.tag(name=name, value=value)
         return redirect(url_for("term.show", id=term.id))
     return render_template("/term/tag.html", form=form, term=term)

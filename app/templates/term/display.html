@@ -3,15 +3,6 @@
 
 {% block content %}
 <div class="container">
-<h5>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item" aria-current="page">Collection</li>
-    <li class="breadcrumb-item active" aria-current="page"><a href="#">{{term.source }}</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ term.term }}</li>
-  </ol>
-</nav>
-</h5>
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">{{ term.term }}</h5>
@@ -73,7 +64,16 @@
                 </p>
             <br>
             {% endif %}
-    
+        </div>
+    </div>
+    <div class="row mt-3 ml-1">
+        <div class="col">
+            Metadata:
+            {% for tag in tags %}
+                {{ tag.value}}
+            {% else %}
+                No additional metadata
+            {% endfor %}
         </div>
     </div>
 </div>
