@@ -11,6 +11,15 @@ class TermForm(FlaskForm):
     source = StringField("Source")
     submit = SubmitField("Submit")
 
+
 class CommentForm(FlaskForm):
-    body = TextAreaField('Comment', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    body = TextAreaField("Comment", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField("Submit")
+
+
+class TagForm(FlaskForm):
+    submit = SubmitField("Submit")

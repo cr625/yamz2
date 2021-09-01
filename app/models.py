@@ -9,6 +9,7 @@ import redis
 import rq
 import time
 import json
+import re
 
 
 class Permission:
@@ -18,6 +19,55 @@ class Permission:
     WRITE = 4
     MODERATE = 8
     ADMIN = 16
+
+
+DEFAULT_TAGS = {
+    "schema",
+    "vocabulary",
+    "source",
+    "definition",
+    "archive",
+}
+
+
+def slugify(s):
+    return re.sub("[^\w]+", "-", s).lower()
+
+
+entry_tags = db.Table(
+    "term_tags",
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id")),
+    db.Column("term_id", db.Integer, db.ForeignKey("terms.id")),
+)
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    value = db.Column(db.String(64))
+    slug = db.Column(db.String(64), unique=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Tag, self).__init__(*args, **kwargs)
+        self.slug = slugify(self.name)
+
+    # @staticmethod
+    # def insert_default_tags():
+    #    tags = {
+    #        "schema",
+    #        "vocabulary",
+    #        "source",
+    #        "definition",
+    #        "archive",
+    #    }
+    #    for tag in tags:
+    #        if not Tag.query.filter_by(name=tag).first():
+    #            db.session.add(Tag(name=tag))
+    #    db.session.commit()
+
+    def __repr__(self):
+        return "<Tag %s>" % self.name
 
 
 class Role(db.Model):
@@ -246,10 +296,14 @@ class Relationship(db.Model):
 class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.Integer, primary_key=True)
-    term = db.Column(db.String(64), unique=True)
+    term = db.Column(db.String(64))
     definition = db.Column(db.Text)
     source = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    created_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_timestamp = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     # data related to terms in tables/classes indicated in the first parameter
@@ -274,6 +328,9 @@ class Term(db.Model):
         cascade="all, delete-orphan",
     )
     comments = db.relationship("Comment", backref="term", lazy="dynamic")
+    tags = db.relationship(
+        "Tag", secondary=entry_tags, backref=db.backref("terms", lazy="dynamic")
+    )
 
     def __repr__(self):
         return "<Term %r>" % self.term

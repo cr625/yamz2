@@ -10,7 +10,8 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
 {% block content %}
 <div class="row">
   <div class="col-6 ml-4 mt-3">
-    {{ render_form(form) }}
+    <form method="POST" action="{{ url_for('term.update', id=term.id) }}">
+      {{ render_form(form) }}
   </div>
 </div>
 {% endblock %}

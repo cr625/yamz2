@@ -11,6 +11,16 @@ Browse Terms
 {% block content %}
 <div class="row">
     <div class="col mt-3">
+        <h5>Choose filter</h5>
+        {% for template in templates %}
+        {% if template != None %}
+        <a href="{{ url_for('term.filter', template=template) }}">{{ template }}</a><br>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-3">
         <h5>All</h5>
         {% include '/term/_terms.html' %}
     </div>

@@ -3,6 +3,15 @@
 
 {% block content %}
 <div class="container">
+<h5>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">Collection</li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="#">Drexel University College of Medicine</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ term.term }}</li>
+  </ol>
+</nav>
+</h5>
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">{{ term.term }}</h5>
@@ -34,14 +43,18 @@
             </div>
         </div>
         <div class="card-footer">
-            <h6 class="card-title">Related terms</h6>
             {% if term.has_children() %}
+            <h6 class="card-title">Related terms</h6>
                 {% for child in children %}
+                <a href="{{url_for('term.cast_vote', id=child.id,vote_type='up')}}"><i class="fas fa-chevron-up"></i></a>
+                [<a href="{{url_for('term.cast_vote',id=child.id,vote_type='cancel')}}">{{ child.get_vote_count() }}</a>]
+                <a href="{{url_for('term.cast_vote',id=child.id,vote_type='down')}}"><i class="fas fa-chevron-down"></i></a>
                 <a href="{{ url_for('term.show', id=child.id) }}">{{ child.term }}</a>
                 <br>
                 {% endfor %}
             {% endif %}
             {% if term.has_parents() %}
+            <h6 class="card-title">Element Type</h6>
                 {% for parent in parents %}
                 <a href="{{ url_for('term.show', id=parent.id) }}">{{ parent.term }}</a>
                 <br>

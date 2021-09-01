@@ -5,21 +5,51 @@ from sqlalchemy import distinct
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment
 from . import term
-from .forms import TermForm, CommentForm
+from .forms import EmptyForm, TermForm, CommentForm
 
 
-@term.route("/browse")
-def browse():
+@term.route("/")
+@term.route("/index")
+def index():
+    page = request.args.get("page", 1, type=int)
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=10)
+    next_url = url_for("term.index", page=terms.next_num) if terms.has_next else None
+    prev_url = url_for("term.index", page=terms.prev_num) if terms.has_prev else None
+
+    return render_template(
+        "term/index.html",
+        terms=terms.items,
+        next_url=next_url,
+        prev_url=prev_url,
+        page=page,
+    )
+
+
+@term.route("/filter")
+def filter():
     template = request.args.get("template")
     if template is not None:
         terms = Term.query.filter_by(source=template).order_by(Term.term).all()
         template = request.args.get("template").upper()
         return render_template("term/browse_by.html", terms=terms, template=template)
-    else:
-        query = db.session.query(Term.source.distinct().label("source"))
-        templates = [row.source for row in query.all()]
-        terms = Term.query.order_by(Term.term).all()
-        return render_template("term/index.html", terms=terms, templates=templates)
+
+
+@term.route("/browse")
+def browse():
+    page = request.args.get("page", 1, type=int)
+    query = db.session.query(Term.source.distinct().label("source"))
+    templates = [row.source for row in query.all()]
+    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=15)
+    next_url = url_for("term.browse", page=terms.next_num) if terms.has_next else None
+    prev_url = url_for("term.browse", page=terms.prev_num) if terms.has_prev else None
+    return render_template(
+        "term/browse.html",
+        terms=terms.items,
+        templates=templates,
+        next_url=next_url,
+        prev_url=prev_url,
+        page=page,
+    )
 
 
 @term.app_template_filter("template_source")
@@ -203,7 +233,7 @@ def cast_vote(id, vote_type):
     term = Term.query.get_or_404(id)
     term.vote(current_user.id, vote_type)
     db.session.commit()
-    return redirect(url_for("term.show", id=id))
+    return redirect(url_for("term.comment", id=id))
 
 
 @term.route("/untrack/<int:id>")
