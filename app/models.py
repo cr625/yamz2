@@ -34,37 +34,18 @@ def slugify(s):
     return re.sub("[^\w]+", "-", s).lower()
 
 
-entry_tags = db.Table(
-    "term_tags",
-    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id")),
-    db.Column("term_id", db.Integer, db.ForeignKey("terms.id")),
-)
-
-
 class Tag(db.Model):
     __tablename__ = "tags"
     id = db.Column(db.Integer, primary_key=True)
+    term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
     name = db.Column(db.String(64))
     value = db.Column(db.String(64))
-    slug = db.Column(db.String(64), unique=True)
+    # slug = db.Column(db.String(64), unique=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
         super(Tag, self).__init__(*args, **kwargs)
-        self.slug = slugify(self.name)
-
-    # @staticmethod
-    # def insert_default_tags():
-    #    tags = {
-    #        "schema",
-    #        "vocabulary",
-    #        "source",
-    #        "definition",
-    #        "archive",
-    #    }
-    #    for tag in tags:
-    #        if not Tag.query.filter_by(name=tag).first():
-    #            db.session.add(Tag(name=tag))
-    #    db.session.commit()
+        # self.slug = slugify(self.name, self.value)
 
     def __repr__(self):
         return "<Tag %s>" % self.name
@@ -328,8 +309,9 @@ class Term(db.Model):
         cascade="all, delete-orphan",
     )
     comments = db.relationship("Comment", backref="term", lazy="dynamic")
+
     tags = db.relationship(
-        "Tag", secondary=entry_tags, backref=db.backref("terms", lazy="dynamic")
+        "Tag", backref="term", lazy="dynamic", cascade="all, delete-orphan"
     )
 
     def __repr__(self):

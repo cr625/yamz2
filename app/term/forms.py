@@ -22,4 +22,6 @@ class EmptyForm(FlaskForm):
 
 
 class TagForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    value = StringField("Value", validators=[DataRequired()])
     submit = SubmitField("Submit")

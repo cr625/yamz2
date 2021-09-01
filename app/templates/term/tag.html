@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form %}
 
 {% block title %}
 Tag
@@ -8,7 +9,6 @@ Tag
 Tag
 {% endblock %}
 {% block content %}
-{{ name }}
-{{ value }}
+{{ render_form(form) }}
 
 {% endblock %}

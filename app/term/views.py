@@ -3,9 +3,9 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import distinct
 
 from .. import db
-from ..models import Relationship, Term, Permission, Track, Comment
+from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import EmptyForm, TermForm, CommentForm
+from .forms import EmptyForm, TermForm, CommentForm, TagForm
 
 
 @term.route("/")
@@ -227,6 +227,7 @@ def track(id):
     return redirect(url_for("term.show", id=id))
 
 
+# TODO: Make this a post request
 @term.route("/vote/<int:id>/<vote_type>")
 @login_required
 def cast_vote(id, vote_type):
@@ -266,3 +267,36 @@ def show_tracked():
         .join(Term, Track.tracked_id == Term.id)
     )
     return render_template("/term/tracked_terms.html", tracks=tracks, terms=terms)
+
+
+@term.route("/tag/<int:id>", methods=["GET", "POST"])
+@login_required
+def tag(id):
+    form = TagForm()
+    if form.validate_on_submit():
+        term = Term.query.get_or_404(id)
+        if term is None:
+            flash("Term id {} not found.".format(id))
+            return redirect(url_for("main.index"))
+        name = form.name.data
+        value = form.value.data
+        tag = Tag.query.filter_by(term_id=term.id, name=name).first()
+        if tag is None:
+            tag = Tag(
+                term_id=term.id, name=name, value=value
+            )  # compare this to the tag in the db you're doing it twice
+            term.tags.append(tag)
+            db.session.commit()
+            flash(
+                "Tag {} with value {} applied to {}".format(
+                    tag.name, tag.value, term.term
+                )
+            )
+        else:
+            flash(
+                "Term {} already tagged with name {} value {}.".format(
+                    term.term, tag.name, tag.value
+                )
+            )
+        return redirect(url_for("term.show", id=term.id))
+    return render_template("/term/tag.html", form=form)
