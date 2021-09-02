@@ -6,6 +6,7 @@ from rq import get_current_job
 from app import create_app, db
 from app.models import User, Term, Task
 from app.email import send_email
+from instance.config import *
 
 app = create_app()
 app.app_context().push()
@@ -34,7 +35,7 @@ def export_terms(user_id):
         total_terms = user.terms.count()
         for term in user.terms.order_by(Term.timestamp.asc()):
             data.append(
-                {"body": term.body, "timestamp": term.timestamp.isoformat() + "Z"}
+                {"term": term.term, "timestamp": term.timestamp.isoformat() + "Z"}
             )
             time.sleep(5)
             i += 1
@@ -42,7 +43,7 @@ def export_terms(user_id):
 
         send_email(
             "[YAMZ] Your Terms",
-            sender=app.config["ADMINS"][0],
+            SENDER_EMAIL,
             recipients=[user.email],
             text_body=render_template("email/export_terms.txt", user=user),
             html_body=render_template("email/export_terms.html", user=user),

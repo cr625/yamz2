@@ -12,7 +12,7 @@
 {% block content %}
 {% if user.name or user.location %}
 <div class="row">
-    <div class="col mb-2 ml-3">
+    <div class="col">
         {% if user.name %}{{ user.name }}{% endif %}
         {% if user.location %}
         from <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
@@ -22,26 +22,26 @@
 {% endif %}
 
 <div class="row">
-    <div class="col ml-3 mt-1">
+    <div class="col">
         Member since {{ user.member_since.strftime('%A, %B %d, %Y') }}
     </div>
 </div>
 <div class="row">
-    <div class="col ml-3 mt-1">
+    <div class="col">
         Last seen {{ user.last_seen.strftime('%c')}} UTC
     </div>
 </div>
-<div class="row">
-    <div class="col ml-3 mt-3">
+<div class="row pt-4">
+    <div class="col">
         <h5>Followed by</h5>
         {% for following_user in following_users %}
-        <a href="{{ url_for('main.user', username=following_user) }}">{{ following_user}}</a><br>
+        <a class="text-dark" href="{{ url_for('main.user', username=following_user) }}">{{ following_user}}</a><br>
         {% endfor %}
     </div>
 </div>
 {% if user != current_user %}
-<div class="row">
-    <div class="col ml-3 mt-3">
+<div class="row pt-4">
+    <div class="col">
         <h5>Terms created by this user</h5>
         {% for user_term in user_terms %}
         <a href="{{ url_for('term.show', id=user_term.id) }}">{{ user_term.term}}</a><br>
@@ -51,49 +51,51 @@
 {% endif %}
 
 {% if user == current_user %}
-<div class="row">
-    <div class="col-md-6 ml-3 mt-3">
+<div class="row pt-4">
+    <div class="col">
         <h5>My terms</h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <a href="{{ url_for('term.create') }}">[Add a new term]</a>
+        <a href="{{ url_for('graph.export_terms') }}">[Export my terms]</a>
+    </div>
+</div>
+<div class="row pt-1">
+    <div class="col">
         {% for my_term in my_terms %}
-        <a href="{{ url_for('term.show', id=my_term.id) }}">{{ my_term.term }}</a>{% if not loop.last %},{% endif %}{%
+        <a class="text-dark" href="{{ url_for('term.show', id=my_term.id) }}">{{ my_term.term }}</a>{% if not loop.last
+        %},{% endif
+        %}{%
         endfor %}
     </div>
 </div>
-<div class="row">
-    <div class="col ml-3 mt-3">
+
+<div class="row pt-4">
+    <div class="col">
         <h5>Tracked terms</h5>
         {% for tracked_term in tracked_terms %}
-        <a href="{{ url_for('term.show', id=tracked_term.id) }}">{{ tracked_term.term}}</a><br>
+        <a class="text-dark" href="{{ url_for('term.show', id=tracked_term.id) }}">{{ tracked_term.term}}</a><br>
         {% endfor %}
     </div>
 </div>
-<div class="row">
-    <div class="col ml-3 mt-3">
+<div class="row pt-4">
+    <div class="col">
         <h5>Terms created by followed users</h5>
         {% for followed_term in followed_terms %}
-        <a href="{{ url_for('term.show', id=followed_term.id) }}">{{ followed_term.term }}</a><br>
+        <a class="text-dark
+        " href="{{ url_for('term.show', id=followed_term.id) }}">{{ followed_term.term }}</a><br>
         {% endfor %}
     </div>
 </div>
-<div class="row">
-    <div class="col ml-3 mt-3">
+<div class="row pt-4">
+    <div class="col">
         <h5>Following</h5>
         {% for followed_user in followed_users %}
-        <a href="{{ url_for('main.user', username=followed_user) }}">{{ followed_user}}</a><br>
+        <a class="text-dark" href="{{ url_for('main.user', username=followed_user) }}">{{ followed_user}}</a><br>
         {% endfor %}
     </div>
-</div>
-
-
-<div class="row">
-    <div class="col mx-auto mt-3">
-        <a href="{{ url_for('.edit_profile') }}">Edit my Profile</a>
-    </div>
-    {% if current_user.is_administrator() %}
-    <div class="col mx-auto mt-3">
-        <a href="{{ url_for('.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
-    </div>
-    {% endif %}
 </div>
 
 {% elif not current_user.is_following(user) %}
@@ -112,5 +114,19 @@
 </p>
 {% endif %}
 
+{% if user == current_user %}
+<div class="row pt-4">
+    <div class="col mx-auto mt-3">
+        <a href="{{ url_for('.edit_profile') }}">[Edit my Profile]</a>
+    </div>
+</div>
+{% elif current_user.is_administrator() %}
+<div class="row pt-4">
+    <div class="col mx-auto mt-3">
+        <a class="text-warning" href="{{ url_for('.edit_profile_admin', id=user.id) }}">[Edit this Profile]</a>
+    </div>
+</div>
+
+{% endif %}
 
 {% endblock %}

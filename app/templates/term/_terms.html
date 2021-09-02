@@ -2,7 +2,7 @@
     {% for term in terms %}
     <dl class="row">
         <dt class="col-sm3"><a class="text-dark" href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a></dt>
-        <dd class="col-sm-9">{{ term.definition }}
+        <dd class="col-sm-9">{{ term.definition }}<br>
             <a href="{{ url_for('term.show', id=term.id) }}">[view]</a>
             {% if current_user.is_authenticated %}
                 {% if not current_user.is_tracking(term) %}
