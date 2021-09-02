@@ -1,11 +1,10 @@
 from flask import flash, redirect, render_template, request, url_for, abort
-from flask_login import current_user, login_required, login_user, logout_user
-from sqlalchemy import distinct
+from flask_login import current_user, login_required
 
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import EmptyForm, TermForm, CommentForm, TagForm
+from .forms import TermForm, CommentForm, TagForm
 
 
 @term.route("/")

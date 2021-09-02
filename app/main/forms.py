@@ -56,3 +56,7 @@ class EditProfileAdminForm(FlaskForm):
 
 class FollowForm(FlaskForm):
     submit = SubmitField("Follow")
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField("Empty")
