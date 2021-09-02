@@ -1,6 +1,6 @@
 <table class="table">
     <tr>
-        <td width="64" style="border: 0px;"><img src="{{ user.avatar(64) }}"></td>
+        <td width="64" style="border: 0px;">Avatar</td>
         <td style="border: 0px;">
             <p><a href="{{ url_for('main.user', username=user.username) }}">
                     {{ user.username }}
@@ -8,12 +8,8 @@
             <small>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {% if user.last_seen %}
-                <p>{{ 'Last seen on' }}: {{ moment(user.last_seen).format('lll') }}</p>
+                <p>{{ 'Last seen on' }}: {{ user.last_seen }}</p>
                 {% endif %}
-                <p>
-                    {{ '%(count)d followers', count=user.followers.count() }},
-                    {{ '%(count)d following', count=user.followed.count() }}
-                </p>
                 {% if user != current_user %}
                 {% if not current_user.is_following(user) %}
                 <p>

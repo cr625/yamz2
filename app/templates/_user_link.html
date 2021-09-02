@@ -1,0 +1,6 @@
+<span class="user_popover" data-bs-toggle="tooltip"
+    title="Last seen {{ term.author.last_seen.strftime('%m/%d/%Y, %H:%M:%S')}} UTC">
+    <a href="{{ url_for('main.user', username=term.author.username) }}">
+        {{ term.author.username }}
+    </a>
+</span>

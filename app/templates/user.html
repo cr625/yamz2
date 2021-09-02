@@ -13,7 +13,7 @@
 {% if user.name or user.location %}
 <div class="row">
     <div class="col">
-        {% if user.name %}{{ user.name }}{% endif %}
+        {% if user.name %}{{ user.name }} <a href="{{ url_for('main.send_message', recipient=user.username)}}">[send message]</a><br>{% endif %}
         {% if user.location %}
         from <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
         {% endif %}
