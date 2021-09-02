@@ -2,7 +2,7 @@ from threading import Thread
 from flask import current_app, render_template
 from flask_mail import Message
 from app import mail
-from instance.config import YAMZ_ADMIN_EMAIL
+from instance.config import SENDER_EMAIL
 
 
 def send_async_email(app, msg):
@@ -31,7 +31,7 @@ def send_password_reset_email(user):
     token = user.get_reset_password_token()
     send_email(
         "YAMZ Reset Your Password",
-        sender=YAMZ_ADMIN_EMAIL,
+        sender=SENDER_EMAIL,
         recipients=[user.email],
         text_body=render_template("email/reset_password.txt", user=user, token=token),
         html_body=render_template("email/reset_password.html", user=user, token=token),

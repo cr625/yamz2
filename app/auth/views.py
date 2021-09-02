@@ -82,6 +82,7 @@ def reset_password(token):
         return redirect(url_for("main.index"))
     user = User.verify_reset_password_token(token)
     if not user:
+        return "this condition"
         return redirect(url_for("main.index"))
     form = ResetPasswordForm()
     if form.validate_on_submit():
