@@ -1,15 +1,13 @@
 from datetime import datetime
-import hashlib
+from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
-import redis
-import rq
-import time
-import json
-import re
+import redis, rq, time, json, re, jwt
+from instance.config import SECRET_KEY
+from time import time
 
 
 class Permission:
@@ -166,6 +164,21 @@ class User(UserMixin, db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
 
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {"reset_password": self.id, "exp": time() + expires_in},
+            SECRET_KEY,
+            algorithm="HS256",
+        )
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])["reset_password"]
+        except:
+            return
+        return User.query.get(id)
+
     @property
     def tracked_terms(self):
         return Term.query.join(Track, Track.tracker_id == self.id).filter(
@@ -175,6 +188,9 @@ class User(UserMixin, db.Model):
     @property
     def password(self):
         raise AttributeError("password is not a readable attribute")
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
     @password.setter
     def password(self, password):
@@ -210,13 +226,6 @@ class User(UserMixin, db.Model):
 
     def following_users(user):
         return user.followed
-
-    # def followed_users(self):
-    #    return User.query.join(followers, (followers.c.followed_id == User.id)).filter(
-    #        followers.c.follower_id == self.id
-    #    )
-
-    # this is for terms from the users I follow
 
     def followed_terms(self):
         return (

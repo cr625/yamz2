@@ -2,56 +2,65 @@
 {% block title %}{{term.term}}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-3">{{ term.term }}</h5>
-            <div class="card-text">
-                <div class="row">
-                    <div class="col-sm-1 text-center">
-                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='up')}}"><i class="fas fa-chevron-up"></i></a><br>
-                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='cancel')}}">{{ vote_count }}</a><br>
-                        <a href="{{url_for('term.cast_vote',id=term.id,vote_type='down')}}"><i class="fas fa-chevron-down"></i></a><br>
-                    </div>
-                    <div class="col">
-                    {{ term.definition }} 
-                    {% if current_user == term.author %}
-                    <a class="card-link" href="{{ url_for('term.update', id=term.id) }}">[update]</a>
-                    <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
-                    {% endif %}
-                    {% if current_user.is_authenticated%}
-                        {% if not current_user.is_tracking(term) %}
-                        <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
-                        {% else%}
-                        <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
-                        {% endif %}
-                    <!--has.permission?-->
-                    <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
-                    <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
-                    {% endif %}
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">{{ term.term }}</h5>
+                <div class="card-text">
+                    <div class="row">
+                        <div class="col-sm-1 text-center">
+                            <a href="{{url_for('term.cast_vote',id=term.id,vote_type='up')}}"><i
+                                    class="fas fa-chevron-up"></i></a><br>
+                            <a href="{{url_for('term.cast_vote',id=term.id,vote_type='cancel')}}">{{ vote_count
+                                }}</a><br>
+                            <a href="{{url_for('term.cast_vote',id=term.id,vote_type='down')}}"><i
+                                    class="fas fa-chevron-down"></i></a><br>
+                        </div>
+                        <div class="col">
+                            {{ term.definition }}<br>
+                            {% if current_user == term.author %}
+                            <a href="{{ url_for('term.update', id=term.id) }}">[update]</a>
+                            <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
+                            {% endif %}
+                            {% if current_user.is_authenticated%}
+                            {% if not current_user.is_tracking(term) %}
+                            <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
+                            {% else%}
+                            <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
+                            {% endif %}
+                            <!--has.permission?-->
+                            <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
+                            <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card-footer">
-            {% if term.has_children() %}
-            <h6 class="card-title">Related terms</h6>
+            <div class="card-footer">
+                {% if term.has_children() %}
+                <h6 class="card-title">Related terms</h6>
                 {% for child in children %}
-                <a href="{{url_for('term.cast_vote', id=child.id,vote_type='up')}}"><i class="fas fa-chevron-up"></i></a>
-                [<a href="{{url_for('term.cast_vote',id=child.id,vote_type='cancel')}}">{{ child.get_vote_count() }}</a>]
-                <a href="{{url_for('term.cast_vote',id=child.id,vote_type='down')}}"><i class="fas fa-chevron-down"></i></a>
+
+                <a href="{{url_for('term.cast_vote', id=child.id,vote_type='up')}}"><i
+                        class="fas fa-chevron-up"></i></a>
+
+                <a href="{{url_for('term.cast_vote',id=child.id,vote_type='down')}}"><i
+                        class="fas fa-chevron-down"></i></a>
+                [<a href="{{url_for('term.cast_vote',id=child.id,vote_type='cancel')}}">{{ child.get_vote_count()}}</a>]
                 <a href="{{ url_for('term.show', id=child.id) }}">{{ child.term }}</a>
+
                 <br>
                 {% endfor %}
-            {% endif %}
-            {% if term.has_parents() %}
-            <h6 class="card-title">Element Type</h6>
+                {% endif %}
+                {% if term.has_parents() %}
+                <h6 class="card-title">Element Type</h6>
                 {% for parent in parents %}
                 <a href="{{ url_for('term.show', id=parent.id) }}">{{ parent.term }}</a>
                 <br>
                 {% endfor %}
-            {% endif %}
-            {% if term.has_comments() %}
+                {% endif %}
+                {% if term.has_comments() %}
                 <h6 class="card-title">Comments</h6>
                 {% for comment in comments %}
                 <p>
@@ -59,21 +68,23 @@
                     <a href="{{ url_for('term.edit_comment',id=comment.id)}}">[edit]</a>
                     <a href="{{ url_for('term.delete_comment',id=comment.id)}}">[delete]</a>
                     <br>
-                    by <a href="{{ url_for('main.user', username=comment.author.username) }}">{{ comment.author.username }}</a>
-                {% endfor %}
+                    by <a href="{{ url_for('main.user', username=comment.author.username) }}">{{ comment.author.username
+                        }}</a>
+                    {% endfor %}
                 </p>
-            <br>
-            {% endif %}
+                <br>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="row mt-3 ml-1">
-        <div class="col">
-            Metadata:
-            {% for tag in tags %}
+        <div class="row mt-3 ml-1">
+            <div class="col">
+                Metadata:
+                {% for tag in tags %}
                 {{ tag.value}}
-            {% else %}
+                {% else %}
                 No additional metadata
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

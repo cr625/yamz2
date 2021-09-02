@@ -15,7 +15,12 @@
 </div>
 <div class="row">
   <div class="col mt-4">
-    New user? <a class="text-dark" href="{{ url_for('auth.register') }}">Click <u>here</u> to register</a>
+    New user? Click <a class="text-dark" href="{{ url_for('auth.register') }}">here</a> to register.
+  </div>
+</div>
+<div class="row">
+  <div class="col mt-2">
+    Forgot password? Click <a class="text-dark" href="{{ url_for('auth.reset_password_request') }}">here</a>to reset it.
   </div>
 </div>
 {% endblock %}
