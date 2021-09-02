@@ -18,4 +18,9 @@
     New user? <a class="text-dark" href="{{ url_for('auth.register') }}">Click <u>here</u> to register</a>
   </div>
 </div>
+<div class="row">
+  <div class="col mt-4">
+    Forgotten password? <a class="text-dark" href="{{ url_for('auth.reset_password_request') }}">Click <u>here</u> to reset it.</a>
+  </div>
+</div>
 {% endblock %}
