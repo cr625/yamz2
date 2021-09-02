@@ -155,6 +155,15 @@ class User(UserMixin, db.Model):
         backref=db.backref("followers", lazy="dynamic"),
         lazy="dynamic",
     )
+    messages_sent = db.relationship(
+        "Message", foreign_keys="Message.sender_id", backref="author", lazy="dynamic"
+    )
+    messages_received = db.relationship(
+        "Message",
+        foreign_keys="Message.recipient_id",
+        backref="recipient",
+        lazy="dynamic",
+    )
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -163,6 +172,8 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(name="Administrator").first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+
+    last_message_read_time = db.Column(db.DateTime)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(

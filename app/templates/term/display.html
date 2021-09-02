@@ -78,7 +78,12 @@
         </div>
         <div class="row mt-3 ml-1">
             <div class="col">
-                Metadata:
+                Added by
+                {% include '_user_link.html' %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
                 {% for tag in tags %}
                 {{ tag.value}}
                 {% else %}
@@ -87,5 +92,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
