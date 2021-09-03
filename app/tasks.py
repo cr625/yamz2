@@ -11,6 +11,8 @@ from instance.config import *
 app = create_app()
 app.app_context().push()
 
+### to start the task queue rq worker yamz-task ##
+
 
 def _set_task_progress(progress):
     job = get_current_job()
@@ -58,4 +60,4 @@ def export_terms(user_id):
         )
     except:
         _set_task_progress(100)
-        app.logger.error("Unhandled exception", exc_info=sys.exc_info())
+        # app.logger.error("Unhandled exception", exc_info=sys.exc_info())

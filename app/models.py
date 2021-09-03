@@ -148,6 +148,8 @@ class User(UserMixin, db.Model):
     )
     comments = db.relationship("Comment", backref="author", lazy="dynamic")
     tasks = db.relationship("Task", backref="user", lazy="dynamic")
+    notifications = db.relationship("Notification", backref="user", lazy="dynamic")
+
     followed = db.relationship(
         "User",
         secondary=followers,
