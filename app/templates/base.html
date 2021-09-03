@@ -16,7 +16,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous">
-    </script>
+  </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <!--START-->
   <div class="container">
     <!-- NAVBAR -->
@@ -59,18 +60,18 @@
       </div>
       <div class="row">
         <div class="col">
-                {% if current_user.is_authenticated %}
-        {% with tasks = current_user.get_tasks_in_progress() %}
-        {% if tasks %}
-            {% for task in tasks %}
-            <div class="alert alert-success" role="alert">
-                {{ task.description }}
-                <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {% endif %}
+          {% if current_user.is_authenticated %}
+          {% with tasks = current_user.get_tasks_in_progress() %}
+          {% if tasks %}
+          {% for task in tasks %}
+          <div class="alert alert-success" role="alert">
+            {{ task.description }}
+            <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+          {% endif %}
         </div>
       </div>
       <!-- END HEADER -->
@@ -94,8 +95,51 @@
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })
-    
-    $(function () {       
+  </script>
+  <script>
+
+        $(function () {
+            var timer = null;
+            var xhr = null;
+            $('.user_popup').hover(
+                function(event) {
+                    // mouse in event handler
+                    var elem = $(event.currentTarget);
+                    timer = setTimeout(function() {
+                        timer = null;
+                        xhr = $.ajax(
+                            '/user/' + elem.first().text().trim() + '/popup').done(
+                                function(data) {
+                                    xhr = null;
+                                    elem.popover({
+                                        trigger: 'manual',
+                                        html: true,
+                                        animation: false,
+                                        container: elem,
+                                        content: data
+                                    }).popover('show');
+                                    flask_moment_render_all();
+                                }
+                            );
+                    }, 1000);
+                },
+                function(event) {
+                    // mouse out event handler
+                    var elem = $(event.currentTarget);
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                    else if (xhr) {
+                        xhr.abort();
+                        xhr = null;
+                    }
+                    else {
+                        elem.popover('destroy');
+                    }
+                }
+            );
+        });
         function set_message_count(n) {
             $('#message_count').text(n);
             $('#message_count').css('visibility', n ? 'visible' : 'hidden');
@@ -126,7 +170,8 @@
             }, 10000);
         });
         {% endif %}
-    
-  </script>
+    </script>
+
+
   {% endblock %}
 </body>

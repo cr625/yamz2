@@ -11,7 +11,7 @@ from instance.config import *
 app = create_app()
 app.app_context().push()
 
-### to start the task queue rq worker yamz-task ##
+### to start the task queue>> rq worker yamz-tasks
 
 
 def _set_task_progress(progress):
