@@ -39,7 +39,7 @@ def export_terms(user_id):
             data.append(
                 {"term": term.term, "timestamp": term.timestamp.isoformat() + "Z"}
             )
-            time.sleep(5)
+            # time.sleep(5)
             i += 1
             _set_task_progress(100 * i // total_terms)
 

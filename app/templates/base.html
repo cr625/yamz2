@@ -64,9 +64,10 @@
           {% with tasks = current_user.get_tasks_in_progress() %}
           {% if tasks %}
           {% for task in tasks %}
-          <div class="alert alert-success" role="alert">
+          <div class="alert alert-success alert-dismissible" role="alert" id="progressAlert">
             {{ task.description }}
             <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
           {% endfor %}
           {% endif %}
@@ -167,7 +168,7 @@
                         }
                     }
                 );
-            }, 10000);
+            }, 5000);
         });
         {% endif %}
     </script>
