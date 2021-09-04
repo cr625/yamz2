@@ -1,9 +1,13 @@
+import os
+
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
-from .forms import UploadForm
+from itsdangerous import exc
+import errno
 
 from .. import db
 from . import graph
+from .forms import UploadForm
 
 
 @graph.route("/", methods=["GET", "POST"])
@@ -41,9 +45,15 @@ def import_file():
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
         if uploaded_file:
+            # TODO: create the directory if it doesn't exist
+            try:
+                os.makedirs("./app/graph/uploads/")
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
             uploaded_file.save("./app/graph/uploads/" + uploaded_file.filename)
         return redirect(url_for("main.user", username=current_user.username))
-    return render_template("/graph/import.html", form=form)
+    return render_template("/graph/import.html", form=form)  # make these using join
 
     # upload_file = request.files["file"]
     # if upload_file:
