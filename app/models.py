@@ -135,6 +135,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     password_hash = db.Column(db.String(128))
+    last_message_read_time = db.Column(db.DateTime)
 
     # create db relationships
     terms = db.relationship("Term", backref="author", lazy="dynamic")
@@ -147,6 +148,8 @@ class User(UserMixin, db.Model):
     )
     comments = db.relationship("Comment", backref="author", lazy="dynamic")
     tasks = db.relationship("Task", backref="user", lazy="dynamic")
+    notifications = db.relationship("Notification", backref="user", lazy="dynamic")
+
     followed = db.relationship(
         "User",
         secondary=followers,
@@ -173,7 +176,19 @@ class User(UserMixin, db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
 
-    last_message_read_time = db.Column(db.DateTime)
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return (
+            Message.query.filter_by(recipient=self)
+            .filter(Message.timestamp > last_read_time)
+            .count()
+        )
+
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(

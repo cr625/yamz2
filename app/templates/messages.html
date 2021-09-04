@@ -11,21 +11,24 @@ Messages
 
 {% block content %}
 <div clas="row">
-    <div class="col pt-4">
-        {% for message in messages %}
-        <div class="card" style="width: 18rem;">
-  <div class="card-body">
-    <h5 class="card-title">Message from {{ message.sender_id}}</h5>
-    <h6 class="card-subtitle mb-2 text-muted"> {{ message.time }}</h6>
-    <p class="card-text">{{ message.body}}</p>
-    <a href="#" class="card-link">Card link</a>
-    <a href="#" class="card-link">Another link</a>
-  </div>
-</div>
-        
-        {% else %}
-        No messages.
-        {% endfor %}
+
+  {% for message in messages %}
+  <div class="col p-3">
+    <div class="card" style="width: 25rem;">
+      <div class="card-body">
+        <h5 class="card-title">Message from
+          <a href="{{ url_for('main.user', username=message.author.username) }}">{{ message.author.username }}</a>
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted"> {{ message.timestamp.strftime('%A, %B %d, %Y') }} UTC</h6>
+        <p class="card-text">{{ message.body}}</p>
+        <a href="#" class="card-link">Card link</a>
+        <a href="#" class="card-link">Another link</a>
+      </div>
     </div>
+  </div>
+  {% else %}
+  No messages.
+  {% endfor %}
+
 </div>
 {% endblock %}

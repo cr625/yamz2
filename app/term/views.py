@@ -12,7 +12,8 @@ from instance.config import *
 @term.route("/index")
 def index():
     page = request.args.get("page", 1, type=int)
-    terms = Term.query.order_by(Term.term).paginate(page=page, per_page=TERMS_PER_PAGE)
+    terms = Term.query.order_by(Term.term).paginate(page, TERMS_PER_PAGE, False)
+
     next_url = url_for("term.index", page=terms.next_num) if terms.has_next else None
     prev_url = url_for("term.index", page=terms.prev_num) if terms.has_prev else None
 

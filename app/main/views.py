@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     make_response,
     redirect,
     render_template,
@@ -10,22 +13,19 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from flask_sqlalchemy import get_debug_queries
+from instance.config import *
 
 from .. import db
 from ..decorators import admin_required, permission_required
-from ..models import Permission, Role, User, Term, Track, Message
+from ..models import Message, Notification, Permission, Role, Term, Track, User
 from . import main
 from .forms import (
-    EditProfileForm,
     EditProfileAdminForm,
-    FollowForm,
+    EditProfileForm,
     EmptyForm,
+    FollowForm,
     MessageForm,
 )
-
-from instance.config import *
-
-from datetime import datetime
 
 
 @main.route("/")
@@ -200,4 +200,19 @@ def messages():
     )
     return render_template(
         "messages.html", messages=messages.items, next_url=next_url, prev_url=prev_url
+    )
+
+
+@main.route("/notifications")
+@login_required
+def notifications():
+    since = request.args.get("since", 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notification.timestamp > since
+    ).order_by(Notification.timestamp.asc())
+    return jsonify(
+        [
+            {"name": n.name, "data": n.get_data(), "timestamp": n.timestamp}
+            for n in notifications
+        ]
     )
