@@ -1,16 +1,16 @@
 """empty message
 
-Revision ID: c547d683c41e
+Revision ID: 377b67574a34
 Revises: 
-Create Date: 2021-09-03 22:30:18.304917
+Create Date: 2021-09-04 10:27:46.136077
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'c547d683c41e'
+revision = '377b67574a34'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,28 +56,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tasks_name'), 'tasks', ['name'], unique=False)
-    op.create_table('comments',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('body_html', sa.Text(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('disabled', sa.Boolean(), nullable=True),
-    sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('term_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['term_id'], ['terms.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_comments_timestamp'), 'comments', ['timestamp'], unique=False)
-    op.create_table('relationships',
-    sa.Column('parent_id', sa.Integer(), nullable=False),
-    sa.Column('child_id', sa.Integer(), nullable=False),
-    sa.Column('predicate', sa.String(length=64), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['child_id'], ['terms.id'], ),
-    sa.ForeignKeyConstraint(['parent_id'], ['terms.id'], ),
-    sa.PrimaryKeyConstraint('parent_id', 'child_id')
-    )
     op.create_table('tags',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('term_id', sa.Integer(), nullable=True),
@@ -87,15 +65,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['term_id'], ['terms.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('votes',
-    sa.Column('voter_id', sa.Integer(), nullable=False),
-    sa.Column('term_id', sa.Integer(), nullable=False),
-    sa.Column('vote_type', sa.Text(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['term_id'], ['terms.id'], ),
-    sa.ForeignKeyConstraint(['voter_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('voter_id', 'term_id')
-    )
+    op.drop_table('follows')
     op.add_column('terms', sa.Column('created_timestamp', sa.DateTime(), nullable=True))
     op.add_column('terms', sa.Column('modified_timestamp', sa.DateTime(), nullable=True))
     op.drop_constraint('terms_term_key', 'terms', type_='unique')
@@ -109,11 +79,15 @@ def downgrade():
     op.create_unique_constraint('terms_term_key', 'terms', ['term'])
     op.drop_column('terms', 'modified_timestamp')
     op.drop_column('terms', 'created_timestamp')
-    op.drop_table('votes')
+    op.create_table('follows',
+    sa.Column('follower_id', sa.INTEGER(), autoincrement=False, nullable=False),
+    sa.Column('followed_id', sa.INTEGER(), autoincrement=False, nullable=False),
+    sa.Column('timestamp', postgresql.TIMESTAMP(), autoincrement=False, nullable=True),
+    sa.ForeignKeyConstraint(['followed_id'], ['terms.id'], name='follows_followed_id_fkey'),
+    sa.ForeignKeyConstraint(['follower_id'], ['terms.id'], name='follows_follower_id_fkey'),
+    sa.PrimaryKeyConstraint('follower_id', 'followed_id', name='follows_pkey')
+    )
     op.drop_table('tags')
-    op.drop_table('relationships')
-    op.drop_index(op.f('ix_comments_timestamp'), table_name='comments')
-    op.drop_table('comments')
     op.drop_index(op.f('ix_tasks_name'), table_name='tasks')
     op.drop_table('tasks')
     op.drop_index(op.f('ix_notification_timestamp'), table_name='notification')
