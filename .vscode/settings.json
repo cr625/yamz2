@@ -15,10 +15,19 @@
     ],
     "cSpell.language": "en,en-US",
     "cSpell.words": [
-        "YAMZ",
+        "crossorigin",
+        "elif",
+        "enctype",
+        "endfor",
+        "endmacro",
+        "kwargs",
+        "strftime",
+        "stylesheet",
         "unfollow",
         "untrack",
-        "werkzeug"
+        "werkzeug",
+        "wtforms",
+        "YAMZ"
     ],
     "python.testing.unittestArgs": [
         "-v",
