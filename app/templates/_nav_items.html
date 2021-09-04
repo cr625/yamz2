@@ -8,6 +8,16 @@
         <li class="nav-item"><a class="nav-link"
                 href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.messages') }}">Messages</a></li>
+        <li class="navbar-text">
+        {% set new_messages = current_user.new_messages() %}
+        {% if new_messages %}
+                <span class="badge bg-secondary">
+        {{  new_messages}}
+                </span>
+        {% endif %}
+
+        </li>
+        
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout&nbsp;
                 <span class="text-uppercase">{{ current_user.username }}</span></a></li>
         {% else %}
