@@ -9,14 +9,16 @@ Import a file
 {% endblock %}
 
 {% block content %}
-<form action="{{ url_for('graph.upload_file') }}" method="post" enctype="multipart/form-data">
+<form action="{{ url_for('graph.import_file') }}" method="post" enctype="multipart/form-data">
     <div class="row p-4">
         <div class="col-md-6">
             {{ form.csrf_token}}
             {{ form.file(class_="form-control") }}
+           <div id="uploadHelp" class="form-text">We can only process XML or RDF files at the moment.</div>
         </div>
+    </div>
     <div class="row">
-        <div class="col-md-6 mt-3">
+        <div class="col-md-6">
             {{ form.submit(class_="btn btn-dark") }}
         </div>
     </div>

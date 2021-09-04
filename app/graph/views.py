@@ -34,9 +34,9 @@ def export_file():
     return redirect(url_for("main.user", username=current_user.username))
 
 
-@graph.route("/import", methods=["GET", "POST"])
+@graph.route("/import_file", methods=["GET", "POST"])
 @login_required
-def upload_file():
+def import_file():
     form = UploadForm()
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
