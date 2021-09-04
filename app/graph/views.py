@@ -40,7 +40,7 @@ def upload_file():
     form = UploadForm()
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
-        if uploaded_file.filename != "":
+        if uploaded_file:
             uploaded_file.save("./app/graph/uploads/" + uploaded_file.filename)
         return redirect(url_for("main.user", username=current_user.username))
     return render_template("/graph/import.html", form=form)
