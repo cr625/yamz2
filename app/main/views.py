@@ -14,6 +14,7 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_sqlalchemy import get_debug_queries
 from instance.config import *
+from yamz import app
 
 from .. import db
 from ..decorators import admin_required, permission_required
@@ -26,6 +27,11 @@ from .forms import (
     FollowForm,
     MessageForm,
 )
+
+
+@main.route("/test", methods=["GET", "POST"])
+def test():
+    return app.config["REDIS_URL"]
 
 
 @main.route("/")

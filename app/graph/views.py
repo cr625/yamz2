@@ -1,8 +1,9 @@
 import errno
 import os
-import magic
 
+import magic
 from flask import abort, flash, redirect, render_template, request, session, url_for
+
 from flask_login import current_user, login_required
 from instance.config import FILE_FORMATS, FILE_TYPES
 from itsdangerous import exc
