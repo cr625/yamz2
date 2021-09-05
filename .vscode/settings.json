@@ -20,6 +20,7 @@
         "enctype",
         "endfor",
         "endmacro",
+        "jsonld",
         "kwargs",
         "strftime",
         "stylesheet",

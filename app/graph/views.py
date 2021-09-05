@@ -1,7 +1,9 @@
-from flask import flash, redirect, render_template, request, session, url_for
+from instance.config import FILE_FORMATS
+from flask import flash, redirect, render_template, request, session, url_for, abort
 from flask_login import current_user, login_required
 from .forms import UploadForm
 
+import os
 from .. import db
 from . import graph
 
@@ -41,7 +43,14 @@ def import_file():
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
         if uploaded_file:
+            file_ext = os.path.splitext(uploaded_file.filename)[1]
+            if file_ext not in FILE_FORMATS:
+                flash("Unsupported file format.")
+                abort(400)
             uploaded_file.save("./app/graph/uploads/" + uploaded_file.filename)
+        else:
+            flash("No file uploaded")
+            abort(400)
         return redirect(url_for("main.user", username=current_user.username))
     return render_template("/graph/import.html", form=form)
 

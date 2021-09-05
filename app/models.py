@@ -26,6 +26,7 @@ DEFAULT_TAGS = [
     "source",
     "definition",
     "archive",
+    "description",
 ]
 
 
@@ -353,7 +354,7 @@ class Term(db.Model):
     def __repr__(self):
         return "<Term %r>" % self.term
 
-    def exemplify(self, child, relationship="isExampleOf"):
+    def exemplify(self, child, relationship="isExampleOf"):  # instanceOf
         rel = Relationship(parent_id=self.id, child_id=child.id)
         db.session.add(rel)
         db.session.commit()

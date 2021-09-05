@@ -30,7 +30,8 @@
                             <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
                             {% endif %}
                             <!--has.permission?-->
-                            <a href="{{ url_for('term.add',id=term.id, relationship='example')}}">[add related]</a>
+                            <!--TODO: add popover of term it is an instance of -->
+                            <a href="{{ url_for('term.add',id=term.id, relationship='instanceOf')}}">[add related]</a>
                             <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
                             {% endif %}
                         </div>

@@ -120,7 +120,7 @@ def create():
 @login_required
 def add(id):
     relationship = request.args.get("relationship")
-    if not relationship == "example":
+    if not relationship == "instanceOf":
         return "Only examples are supported right now."
     parent = Term.query.get_or_404(id)
     form = TermForm()
