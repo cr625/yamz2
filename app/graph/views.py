@@ -1,11 +1,8 @@
-<<<<<<< HEAD
 from instance.config import FILE_FORMATS
 from flask import flash, redirect, render_template, request, session, url_for, abort
-=======
 import os
 
 from flask import flash, redirect, render_template, request, session, url_for
->>>>>>> c11c060ae5560ae39bfd560e12ad0f1cfd22bad4
 from flask_login import current_user, login_required
 from itsdangerous import exc
 import errno
@@ -51,19 +48,19 @@ def import_file():
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
         if uploaded_file:
-<<<<<<< HEAD
-            file_ext = os.path.splitext(uploaded_file.filename)[1]
-            if file_ext not in FILE_FORMATS:
-                flash("Unsupported file format.")
-                abort(400)
-=======
-            # TODO: create the directory if it doesn't exist
             try:
                 os.makedirs("./app/graph/uploads/")
             except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
->>>>>>> c11c060ae5560ae39bfd560e12ad0f1cfd22bad4
+            file_extension = uploaded_file.filename.rsplit(".", 1)[1]
+            if file_extension not in FILE_FORMATS:
+                flash(
+                    "Unsupported file format {}. Only accepting {}".format(
+                        file_extension, FILE_FORMATS
+                    )
+                )
+                return redirect(url_for("graph.import_file"))
             uploaded_file.save("./app/graph/uploads/" + uploaded_file.filename)
         else:
             flash("No file uploaded")

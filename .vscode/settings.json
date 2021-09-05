@@ -16,10 +16,12 @@
     "cSpell.language": "en,en-US",
     "cSpell.words": [
         "crossorigin",
+        "EEXIST",
         "elif",
         "enctype",
         "endfor",
         "endmacro",
+        "errno",
         "jsonld",
         "kwargs",
         "strftime",

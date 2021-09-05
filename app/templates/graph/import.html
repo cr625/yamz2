@@ -5,7 +5,7 @@
 
 {% block title %}Import{% endblock %}
 {% block header %}
-Import a file
+Import a schema
 {% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@ Import a file
         <div class="col-md-6">
             {{ form.csrf_token}}
             {{ form.file(class_="form-control") }}
-           <div id="uploadHelp" class="form-text">We can only process XML or RDF files at the moment.</div>
+           <div id="uploadHelp" class="form-text">We can only process RDF files at the moment.</div>
         </div>
     </div>
     <div class="row">
