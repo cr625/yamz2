@@ -16,7 +16,6 @@ Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.15.1
 greenlet==1.1.1
 idna==3.2
-isodate==0.6.0
 itsdangerous==2.0.1
 Jinja2==3.0.1
 jwt==1.2.0
@@ -28,11 +27,9 @@ platformdirs==2.3.0
 psycopg2-binary==2.9.1
 pycodestyle==2.7.0
 pycparser==2.20
-pyparsing==2.4.7
 python-dateutil==2.8.2
 python-editor==1.0.4
 python-magic==0.4.24
-rdflib==6.0.0
 redis==3.5.3
 regex==2021.8.28
 rq==1.9.0

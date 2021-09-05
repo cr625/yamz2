@@ -121,7 +121,7 @@ def create():
 def add(id):
     relationship = request.args.get("relationship")
     if not relationship == "instanceOf":
-        return "Only examples are supported right now."
+        return "Only instances are supported right now."
     parent = Term.query.get_or_404(id)
     form = TermForm()
     if form.validate_on_submit():
@@ -134,7 +134,7 @@ def add(id):
         db.session.add(child)
         db.session.commit()
         db.session.refresh(child)
-        parent.exemplify(child, relationship)
+        parent.instantiate(child, relationship)
         flash("Term added.", "success")
         return redirect(url_for("main.index"))
     return render_template(

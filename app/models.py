@@ -19,6 +19,20 @@ class Permission:
     ADMIN = 16
 
 
+class Namespace:
+    DC = "dc"
+    DCTERMS = "dcterms"
+    DOAP = "doap"
+    FOAF = "foaf"
+    SKOS = "skos"
+    OWL = "owl"
+    RDF = "rdf"
+    RDFS = "rdfs"
+    VOID = "void"
+    XMLNS = "xmlns"
+    XSD = "xsd"
+
+
 DEFAULT_TAGS = [
     "user",
     "schema",
@@ -307,7 +321,7 @@ class Relationship(db.Model):
     __tablename__ = "relationships"
     parent_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
     child_id = db.Column(db.Integer, db.ForeignKey("terms.id"), primary_key=True)
-    predicate = db.Column(db.String(64), default="isExampleOf")
+    predicate = db.Column(db.String(64), default="instanceOf")
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -354,7 +368,7 @@ class Term(db.Model):
     def __repr__(self):
         return "<Term %r>" % self.term
 
-    def exemplify(self, child, relationship="isExampleOf"):  # instanceOf
+    def instantiate(self, child, relationship="instanceOf"):  # instanceOf
         rel = Relationship(parent_id=self.id, child_id=child.id)
         db.session.add(rel)
         db.session.commit()
