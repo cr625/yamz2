@@ -1,13 +1,13 @@
-from instance.config import FILE_FORMATS
-from flask import flash, redirect, render_template, request, session, url_for, abort
-import os
-
-from flask import flash, redirect, render_template, request, session, url_for
-from flask_login import current_user, login_required
-from itsdangerous import exc
 import errno
-
 import os
+import magic
+
+from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required
+from instance.config import FILE_FORMATS, FILE_TYPES
+from itsdangerous import exc
+from werkzeug.utils import secure_filename
+
 from .. import db
 from . import graph
 from .forms import UploadForm
@@ -41,6 +41,12 @@ def export_file():
     return redirect(url_for("main.user", username=current_user.username))
 
 
+# use magic to determine file type
+def validate_xml(stream):
+    file_type = magic.from_buffer(stream.read(1024), mime=True)
+    return file_type
+
+
 @graph.route("/import_file", methods=["GET", "POST"])
 @login_required
 def import_file():
@@ -54,14 +60,17 @@ def import_file():
                 if e.errno != errno.EEXIST:
                     raise
             file_extension = uploaded_file.filename.rsplit(".", 1)[1]
-            if file_extension not in FILE_FORMATS:
+            file_type = validate_xml(uploaded_file.stream)
+            if file_extension not in FILE_FORMATS or file_type not in FILE_TYPES:
                 flash(
-                    "Unsupported file format {}. Only accepting {}".format(
-                        file_extension, FILE_FORMATS
-                    )
+                    "Unsupported file format {} ({})".format(file_extension, file_type),
+                    "error",
                 )
                 return redirect(url_for("graph.import_file"))
-            uploaded_file.save("./app/graph/uploads/" + uploaded_file.filename)
+            uploaded_file.save(
+                "./app/graph/uploads/" + secure_filename(uploaded_file.filename)
+            )
+            flash("Success", "success")
         else:
             flash("No file uploaded")
             abort(400)
