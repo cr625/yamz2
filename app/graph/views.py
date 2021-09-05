@@ -31,17 +31,6 @@ def export_terms():
     return redirect(url_for("main.user", username=current_user.username))
 
 
-@graph.route("/export_file")
-@login_required
-def export_file():
-    if current_user.get_task_in_progress("export_file"):
-        flash("An export task is currently in progress")
-    else:
-        current_user.launch_task("export_file", "Exporting file...")
-        db.session.commit()
-    return redirect(url_for("main.user", username=current_user.username))
-
-
 # use magic to determine file type
 def validate_xml(stream):
     file_type = magic.from_buffer(stream.read(1024), mime=True)
@@ -68,12 +57,22 @@ def import_file():
                     "error",
                 )
                 return redirect(url_for("graph.import_file"))
-            uploaded_file.save(
-                "./app/graph/uploads/" + secure_filename(uploaded_file.filename)
+            full_file_path = "./app/graph/uploads/" + secure_filename(
+                uploaded_file.filename
             )
-            flash("Success", "success")
+            uploaded_file.save(full_file_path)
+
+            if current_user.get_task_in_progress("import_file"):
+                flash("An import task is currently in progress")
+            else:
+                current_user.launch_task(
+                    "import_file", "Importing  file...", full_file_path
+                )
+                db.session.commit()
+
+            flash("File uploaded.", "success")
         else:
-            flash("No file uploaded")
+            flash("No file uploaded.")
             abort(400)
         return redirect(url_for("main.user", username=current_user.username))
     return render_template("/graph/import.html", form=form)  # make these using join

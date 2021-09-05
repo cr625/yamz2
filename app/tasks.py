@@ -30,6 +30,15 @@ def _set_task_progress(progress):
         db.session.commit()
 
 
+def import_file(user_id, file):
+    _set_task_progress(0)
+    i = 0
+    while i < 60:
+        time.sleep(1)
+        i += 1
+        _set_task_progress(100 * i // 60)
+
+
 def export_terms(user_id):
     try:
         user = User.query.get(user_id)
