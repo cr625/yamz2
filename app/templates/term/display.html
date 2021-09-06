@@ -18,7 +18,19 @@
                                     class="fas fa-chevron-down"></i></a><br>
                         </div>
                         <div class="col">
-                            {{ term.definition }}<br>
+                            {% for tag in tags %}
+                            <dl class="row">
+
+                                <dt class="col-sm-2">
+                                    {{tag.name}}
+                                </dt>
+                                <dd class="col">
+                                    {{ tag.value}}
+                                </dd>
+                            </dl>
+                            {% endfor %}
+
+                            <br>
                             {% if current_user == term.author %}
                             <a href="{{ url_for('term.update', id=term.id) }}">[update]</a>
                             <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
@@ -83,16 +95,6 @@
                 {% include '_user_link.html' %}
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                {% for tag in tags %}
-                {{ tag.value}}
-                {% else %}
-                No additional metadata
-                {% endfor %}
-            </div>
-        </div>
     </div>
-</div>
 </div>
 {% endblock %}
