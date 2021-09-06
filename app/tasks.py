@@ -17,6 +17,7 @@ app.app_context().push()
 ### to start the task queue>>
 # redis-server
 # rq worker yamz-tasks
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 def _set_task_progress(progress):
@@ -33,6 +34,16 @@ def _set_task_progress(progress):
         db.session.commit()
 
 
+# properties are delimited by #. If it ends in /, don't slice it. If the term is delimted by /, get the substring
+def check_char(x):
+    i = -1
+    if "#" in x:
+        i = x.rfind("#")
+    elif "/" in x and not x.endswith("/"):
+        i = x.rfind("/")
+    return x[i + 1 :].strip()
+
+
 def import_file(user_id, **kwargs):
     _set_task_progress(0)
     user = User.query.get(user_id)
@@ -42,9 +53,29 @@ def import_file(user_id, **kwargs):
         i += 1
         _set_task_progress(100 * i // 60)
     file = kwargs.get("file")
-    term = Term(term=file, definition="", author_id=user_id)
-    db.session.add(term)
-    db.session.commit()
+    g = Graph()
+    g = g.parse(file)
+
+    pub = "DCMI"  # TODO: get this from rdflib
+
+    for s, p, o in g:
+        s = check_char(s)
+        print("subject: {}".format(s))
+
+        p = check_char(p)
+        print("predicate: {}".format(p))
+
+        o = check_char(o)
+        print("object: {}\n".format(o))
+
+        term = Term.query.filter_by(term=s, source=pub).first()
+        if term is None:
+            term = Term(term=s, source=pub, definition="", author_id=user_id)
+            db.session.add(term)
+            db.session.commit()
+            db.session.refresh(term)
+        else:
+            term.tag(name=p, value=o)
 
 
 def export_terms(user_id):

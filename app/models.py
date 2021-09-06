@@ -52,8 +52,8 @@ class Tag(db.Model):
     __tablename__ = "tags"
     id = db.Column(db.Integer, primary_key=True)
     term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
-    name = db.Column(db.String(64))
-    value = db.Column(db.String(64))
+    name = db.Column(db.Text)
+    value = db.Column(db.Text)
     # slug = db.Column(db.String(64), unique=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 

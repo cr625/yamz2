@@ -39,6 +39,7 @@ def export_terms():
 # use magic to determine file type
 def validate_xml(stream):
     file_type = magic.from_buffer(stream.read(1024), mime=True)
+    stream.seek(0)
     return file_type
 
 
