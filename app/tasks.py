@@ -8,6 +8,9 @@ from app.models import User, Term, Task
 from app.email import send_email
 from instance.config import *
 
+from werkzeug.wrappers import Response
+
+
 app = create_app()
 app.app_context().push()
 
@@ -30,13 +33,18 @@ def _set_task_progress(progress):
         db.session.commit()
 
 
-def import_file(user_id, file):
+def import_file(user_id, **kwargs):
     _set_task_progress(0)
+    user = User.query.get(user_id)
     i = 0
     while i < 60:
-        time.sleep(1)
+        # time.sleep(1)
         i += 1
         _set_task_progress(100 * i // 60)
+    file = kwargs.get("file")
+    term = Term(term=file, definition="", author_id=user_id)
+    db.session.add(term)
+    db.session.commit()
 
 
 def export_terms(user_id):
