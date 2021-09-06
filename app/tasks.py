@@ -8,8 +8,8 @@ from app.models import User, Term, Task
 from app.email import send_email
 from instance.config import *
 
-from werkzeug.wrappers import Response
-
+from rdflib import Graph, RDF, URIRef, Literal
+from rdflib.namespace import DC, RDFS, FOAF, SKOS
 
 app = create_app()
 app.app_context().push()
