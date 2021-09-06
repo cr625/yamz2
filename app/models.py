@@ -65,6 +65,20 @@ class Tag(db.Model):
         return "<Tag %s>" % self.name
 
 
+class Set(db.Model):
+    __tablename__ = "sets"
+    id = db.Column(db.Integer, primary_key=True)
+    term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
+    name = db.Column(db.String(64))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        super(set, self).__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return "<Set %s>" % self.name
+
+
 class Role(db.Model):
     __tablename__ = "roles"
     id = db.Column(db.Integer, primary_key=True)

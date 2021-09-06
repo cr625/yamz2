@@ -20,6 +20,11 @@ def index():
         return render_template("/graph/index.html")
 
 
+@graph.route("/results")
+def show_results():
+    return render_template("/graph/results.html")
+
+
 @graph.route("/export_terms")
 @login_required
 def export_terms():
@@ -66,7 +71,7 @@ def import_file():
                 flash("An import task is currently in progress")
             else:
                 current_user.launch_task(
-                    "import_file", "Importing  file...", full_file_path
+                    "import_file", "Importing  file...", file=full_file_path
                 )
                 db.session.commit()
 
