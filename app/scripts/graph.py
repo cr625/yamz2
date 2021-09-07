@@ -1,4 +1,5 @@
 #!./venv/bin/python3
+from re import L
 import sched
 from webbrowser import get
 from rdflib import Graph
@@ -92,22 +93,30 @@ def ob():
         if o not in entries:
             entries.append(o)
         schema = o
+
+    l = len(schema)
     # find all subjects of any type
+    count = 0
+
     for s, p, o in file_graph.triples((None, None, None)):
-        i = s.rfind(schema)
-        s = s[i + len(schema) :]
-        print("subject: {}".format(s))
+        count += 1
+        subject = file_graph.compute_qname(s)
 
-        p = p[i + len(schema) :]
-        print("predicate: {}".format(p))
+        print("subject: {}".format(subject[-1]))
 
-        o = o[i + len(schema) :]
+        predicate = file_graph.compute_qname(p)
+        print("predicate: {}".format(predicate[-1]))
+
         print("object: {}\n".format(o))
+
+    print("count: {}".format(count))
 
 
 def main():
 
     ob()
+
+    print_graph_namespaces()
 
 
 # get_properties()

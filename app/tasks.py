@@ -53,29 +53,29 @@ def import_file(user_id, **kwargs):
         i += 1
         _set_task_progress(100 * i // 60)
     file = kwargs.get("file")
-    g = Graph()
-    g = g.parse(file)
+    file_graph = Graph()
+    file_graph = file_graph.parse(file)
 
-    pub = "DCMI"  # TODO: get this from rdflib
+    entries = []
+    for o in file_graph.objects(None, RDFS.isDefinedBy):
+        if o not in entries:
+            entries.append(o)
+        schema = o
+    l = len(schema)
+    # check that o == 1 or there is a problem
 
-    for s, p, o in g:
-        s = check_char(s)
-        print("subject: {}".format(s))
+    for s, p, o in file_graph.triples((None, None, None)):
+        subject = file_graph.compute_qname(s)[-1]
+        predicate = file_graph.compute_qname(p)[-1]
 
-        p = check_char(p)
-        print("predicate: {}".format(p))
-
-        o = check_char(o)
-        print("object: {}\n".format(o))
-
-        term = Term.query.filter_by(term=s, source=pub).first()
+        term = Term.query.filter_by(term=subject, source=schema).first()
         if term is None:
-            term = Term(term=s, source=pub, definition="", author_id=user_id)
+            term = Term(term=subject, source=schema, definition="", author_id=user_id)
             db.session.add(term)
             db.session.commit()
             db.session.refresh(term)
         else:
-            term.tag(name=p, value=o)
+            term.tag(name=predicate, value=o)
 
 
 def export_terms(user_id):
