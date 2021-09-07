@@ -64,9 +64,10 @@ def import_file(user_id, **kwargs):
     l = len(schema)
     # check that o == 1 or there is a problem
 
-    for s, p, o in file_graph.triples((None, None, None)):
-        subject = file_graph.compute_qname(s)[-1]
-        predicate = file_graph.compute_qname(p)[-1]
+    for subject, predicate, obj in file_graph.triples((None, None, None)):
+        if not subject == schema:
+            subject = file_graph.compute_qname(subject)[-1]
+        predicate = file_graph.compute_qname(predicate)[-1]
 
         term = Term.query.filter_by(term=subject, source=schema).first()
         if term is None:
@@ -75,7 +76,7 @@ def import_file(user_id, **kwargs):
             db.session.commit()
             db.session.refresh(term)
         else:
-            term.tag(name=predicate, value=o)
+            term.tag(name=predicate, value=obj)
 
 
 def export_terms(user_id):

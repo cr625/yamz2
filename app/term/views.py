@@ -70,7 +70,7 @@ def get_templates():
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
-    tags = term.tags
+    tags = term.tags.order_by(Tag.name)
     children = (
         db.session.query(Term)
         .select_from(Relationship)

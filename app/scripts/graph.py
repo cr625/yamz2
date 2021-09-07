@@ -100,7 +100,8 @@ def ob():
 
     for s, p, o in file_graph.triples((None, None, None)):
         count += 1
-        subject = file_graph.compute_qname(s)
+        if not s == schema:
+            subject = file_graph.compute_qname(s)
 
         print("subject: {}".format(subject[-1]))
 
