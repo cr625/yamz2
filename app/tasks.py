@@ -65,6 +65,10 @@ def import_file(user_id, **kwargs):
     # check that o == 1 or there is a problem
 
     for subject, predicate, obj in file_graph.triples((None, None, None)):
+        if (subject, predicate, obj) not in file_graph:
+            # app.logger.error("No triples found.")
+            # return {"message": "No triples found."}, 400
+            raise Exception("No triples found.")
         if not subject == schema:
             subject = file_graph.compute_qname(subject)[-1]
         predicate = file_graph.compute_qname(predicate)[-1]
