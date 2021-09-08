@@ -57,7 +57,7 @@ def get_properties():
 entries = []
 
 
-def isDefineBy():
+def isDefinedBy():
     for o in file_graph.objects(None, RDFS.isDefinedBy):
         if o not in entries:
             entries.append(o)
@@ -67,7 +67,7 @@ def isDefineBy():
 
 
 def get_schema():
-    x = file_graph.value(DC.publisher, RDFS.isDefinedBy)
+    x = file_graph.value(None, None, RDFS.isDefinedBy)
     print(x)
 
 
@@ -115,9 +115,7 @@ def ob():
 
 def main():
 
-    ob()
-
-    print_graph_namespaces()
+    isDefinedBy()
 
 
 # get_properties()

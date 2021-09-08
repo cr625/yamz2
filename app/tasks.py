@@ -1,4 +1,5 @@
 import json
+from operator import sub
 import sys
 import time
 from flask import render_template
@@ -61,21 +62,28 @@ def import_file(user_id, **kwargs):
         if o not in entries:
             entries.append(o)
         schema = o
-    l = len(schema)
-    # check that o == 1 or there is a problem
+
+    # schema = file_graph.value(None, RDFS.isDefinedBy)
+
+    source = schema if schema else "DCMI"
 
     for subject, predicate, obj in file_graph.triples((None, None, None)):
         if (subject, predicate, obj) not in file_graph:
             # app.logger.error("No triples found.")
             # return {"message": "No triples found."}, 400
             raise Exception("No triples found.")
-        if not subject == schema:
+        if isinstance(subject, URIRef):
             subject = file_graph.compute_qname(subject)[-1]
-        predicate = file_graph.compute_qname(predicate)[-1]
+        if isinstance(predicate, URIRef):
+            predicate = file_graph.compute_qname(predicate)[-1]
+        if isinstance(obj, URIRef):
+            predicate = file_graph.compute_qname(obj)[-1]
 
-        term = Term.query.filter_by(term=subject, source=schema).first()
+        # if it's not a URIRef then it is a literal or a bnode so pass it through
+
+        term = Term.query.filter_by(term=subject, source=source).first()
         if term is None:
-            term = Term(term=subject, source=schema, definition="", author_id=user_id)
+            term = Term(term=subject, source=source, definition="", author_id=user_id)
             db.session.add(term)
             db.session.commit()
             db.session.refresh(term)

@@ -1,15 +1,20 @@
 #!./venv/bin/python3
 
-from rdflib import Graph, URIRef
+from rdflib import Graph, Namespace
 
-url_graph = Graph()
+file_graph = Graph()
+file_graph.parse("./graph/uploads/ontology.ttl")
 
-url_graph.parse(
-    "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.nt"
-)
 
-for (subj, pred, obj) in url_graph:
-    # Check if there is at least one triple in the Graph
-    if ((subj, pred, obj)) not in url_graph:
-        raise Exception("It better be!")
-    print((subj, pred, obj))
+def list():
+    for s, p, o in file_graph:
+        print("subject: {}\npredicate: {}\nobject{}\n".format(s, p, o))
+
+
+def main():
+
+    list()
+
+
+if __name__ == "__main__":
+    main()
