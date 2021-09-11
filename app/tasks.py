@@ -45,6 +45,14 @@ def check_char(x):
     return x[i + 1 :].strip()
 
 
+def check_uriRef(val_to_check, g):
+    if isinstance(val_to_check, URIRef):
+        qname = g.compute_qname(val_to_check)
+        if qname[-1] is not None and qname[-1] != "":
+            return qname[-1]
+    return val_to_check
+
+
 def import_file(user_id, **kwargs):
     _set_task_progress(0)
     user = User.query.get(user_id)
@@ -73,21 +81,9 @@ def import_file(user_id, **kwargs):
             # app.logger.error("No triples found.")
             # return {"message": "No triples found."}, 400
             raise Exception("No triples found.")
-        if isinstance(subject, URIRef):
-            try:
-                subject = file_graph.compute_qname(subject)[-1]
-            except:
-                pass
-        if isinstance(predicate, URIRef):
-            try:
-                predicate = file_graph.compute_qname(predicate)[-1]
-            except:
-                pass
-        if isinstance(obj, URIRef):
-            try:
-                predicate = file_graph.compute_qname(obj)[-1]
-            except:
-                pass
+        subject = check_uriRef(subject, file_graph)
+        predicate = check_uriRef(predicate, file_graph)
+        obj = check_uriRef(obj, file_graph)
 
         # if it's not a URIRef then it is a literal or a bnode so pass it through
 
