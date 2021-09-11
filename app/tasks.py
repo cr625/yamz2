@@ -68,25 +68,38 @@ def import_file(user_id, **kwargs):
     source = schema if schema else "DCMI"
 
     for subject, predicate, obj in file_graph.triples((None, None, None)):
+
         if (subject, predicate, obj) not in file_graph:
             # app.logger.error("No triples found.")
             # return {"message": "No triples found."}, 400
             raise Exception("No triples found.")
         if isinstance(subject, URIRef):
-            subject = file_graph.compute_qname(subject)[-1]
+            try:
+                subject = file_graph.compute_qname(subject)[-1]
+            except:
+                pass
         if isinstance(predicate, URIRef):
-            predicate = file_graph.compute_qname(predicate)[-1]
+            try:
+                predicate = file_graph.compute_qname(predicate)[-1]
+            except:
+                pass
         if isinstance(obj, URIRef):
-            predicate = file_graph.compute_qname(obj)[-1]
+            try:
+                predicate = file_graph.compute_qname(obj)[-1]
+            except:
+                pass
 
         # if it's not a URIRef then it is a literal or a bnode so pass it through
 
         term = Term.query.filter_by(term=subject, source=source).first()
         if term is None:
-            term = Term(term=subject, source=source, definition="", author_id=user_id)
-            db.session.add(term)
-            db.session.commit()
-            db.session.refresh(term)
+            if subject != "":
+                term = Term(
+                    term=subject, source=source, definition="", author_id=user_id
+                )
+                db.session.add(term)
+                db.session.commit()
+                db.session.refresh(term)
         else:
             term.tag(name=predicate, value=obj)
 
