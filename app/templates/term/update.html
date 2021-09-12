@@ -10,7 +10,7 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
 {% block content %}
 
 <div class="row">
-  <div class="col-md-6 p-4">
+  <div class="col-md-6 p-2">
     <form method="POST" action="{{ url_for('term.update', id=term.id) }}">
       {{ form.csrf_token }}
       {{ form.term.label(class_="form-label")}}
@@ -24,14 +24,21 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
   </div>
 </div>
 <div class="row">
-  <div class="col-md-6 p-4">
-    Add element:
-    {{ form.tag_name}}
-    {{ form.tag_value}}
+  <div class="col-md-6 p-2">
+    {{ form.tag_name.label(class_="form-label")}}
+    {{ form.tag_name(class_="form-control") }}
   </div>
 </div>
+<div class="row">
+  <div class="col-md-6 p-2">
+    {{ form.tag_value.label(class_="form-label")}}
+    {{ form.tag_value(class_="form-control") }}
+    <small id="tagHelp" class="form-text text-muted">{{form.tag_value.description}}</small>
+  </div>
+</div>
+
 <div class="row pl-3">
-  <div class="col-md-6">
+  <div class="col-md-6 p-2">
     {{ form.submit(class_="btn btn-dark") }}
   </div>
 </div>

@@ -24,7 +24,7 @@ class TermForm(FlaskForm):
 class UpdateTermForm(FlaskForm):
     term = StringField("Term", validators=[DataRequired()])
     tag_name = StringField("Name")
-    tag_value = StringField("Value")
+    tag_value = TextAreaField("Value", description="Add or edit name value pairs.")
     submit = SubmitField("Update")
 
 
