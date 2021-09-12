@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{%block header%}Search Results{% endblock %}{% endblock %}
+
+{% block content %}
+{% include '/term/_terms.html' %}
+
+<div class="row">
+    <div class="col mt-3">
+        {% include '_pager.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -2,6 +2,38 @@
 
 {% block title%}Metadictionary{% endblock %}
 
+
+{% block navbar_items%}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('term.browse') }}">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.create')}}">Contribute</a></li>
+        {% if current_user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.show_my')}}">My Terms</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('term.show_tracked')}}">Tracked Terms</a></li>
+        <li class="nav-item"><a class="nav-link"
+                href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.messages') }}">Messages</a></li>
+        <li class="navbar-text">
+        {% set new_messages = current_user.new_messages() %}
+        {% if new_messages %}
+                <span class="badge bg-secondary">
+        {{  new_messages}}
+                </span>
+        {% endif %}
+        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+        <li class="navbar-text"><span class="text-uppercase fw-bold">{{ current_user.username }}<span>{% if current_user.is_administrator() %}
+        <span class="text-warning">(ADMIN)<span><span>{% endif %}</li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center mt-5">
@@ -9,12 +41,12 @@
             <div class="h1">Metadictionary</div>
         </div>
     </div>
-    <form class="row justify-content-center mt-5">
+    <form class="row justify-content-center mt-5" method="GET" action="{{ url_for('main.search') }}">
         <div class="col-6">
-            <input type="text" class="form-control" id="search" placeholder="search for a term">
+            {{ g.search_form.q(size=20, class='form-control', placeholder='search for a term') }}
         </div>
         <div class="col-auto">
-            <button type="submit" class="btn btn-dark mb-3">Search</button>
+         {{ g.search_form.submit(class='btn btn-dark', value='Search') }}
         </div>
     </form>
 </div>

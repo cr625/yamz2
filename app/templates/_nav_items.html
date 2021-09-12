@@ -26,8 +26,12 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
         {% endif %}
     </ul>
-    <form class="d-flex ml-4">
-        <input class="form-control" type="search" placeholder="Search for a term" aria-label="Search">
-        <button class="btn-dark" type="submit">Search</button>
+    {% if g.search_form %}
+    <form class="navbar-form navbar-right" method="GET" action="{{ url_for('main.search') }}">
+        <div class="input-group">
+            {{ g.search_form.q(size=20, class='form-control') }}
+            {{ g.search_form.submit(class='btn btn-outline-dark', value='Search') }}
+        </div>
     </form>
+    {% endif %}
 </div>

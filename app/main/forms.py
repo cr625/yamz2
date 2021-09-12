@@ -3,6 +3,22 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField, Submi
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
 from ..models import Role, User
+from flask import request
+
+
+from flask import request
+
+
+class SearchForm(FlaskForm):
+    q = StringField("Search", validators=[DataRequired()])
+    submit = SubmitField("Search")
+
+    def __init__(self, *args, **kwargs):
+        if "formdata" not in kwargs:
+            kwargs["formdata"] = request.args
+        if "csrf_enabled" not in kwargs:
+            kwargs["csrf_enabled"] = False
+        super(SearchForm, self).__init__(*args, **kwargs)
 
 
 class EditProfileForm(FlaskForm):
