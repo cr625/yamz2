@@ -1,4 +1,4 @@
-from instance.config import REDIS_URL
+from instance.config import ELASTICSEARCH_URL, REDIS_URL
 import os
 
 from flask import Flask, render_template
@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from redis import Redis
+from elasticsearch import Elasticsearch
 import rq
 
 login_manager = LoginManager()
@@ -23,8 +24,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 def create_app(test_config="test_config.py"):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
-    app.redis = Redis.from_url(REDIS_URL)
-    app.task_queue = rq.Queue("yamz-tasks", connection=app.redis)
 
     # set common config values
     try:
@@ -46,6 +45,7 @@ def create_app(test_config="test_config.py"):
     mail.init_app(app)
     app.redis = Redis.from_url(REDIS_URL)
     app.task_queue = rq.Queue("yamz-tasks", connection=app.redis)
+    app.elasticsearch = Elasticsearch(ELASTICSEARCH_URL)
 
     # apply the blueprints to the app
     from .main import main as main_blueprint
