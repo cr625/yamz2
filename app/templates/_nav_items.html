@@ -29,7 +29,8 @@
     {% if g.search_form %}
     <form class="navbar-form navbar-right" method="GET" action="{{ url_for('main.search') }}">
         <div class="input-group">
-            {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
+            {{ g.search_form.q(size=20, class='form-control') }}
+            {{ g.search_form.submit(class='btn btn-outline-dark', value='Search') }}
         </div>
     </form>
     {% endif %}

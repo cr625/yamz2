@@ -1,14 +1,22 @@
+import json
+import re
+import time
 from datetime import datetime
 from hashlib import md5
-from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
-from flask_login import UserMixin, AnonymousUserMixin
-from . import db, login_manager
-import redis, rq, time, json, re, jwt
-from instance.config import *
 from time import time
-from app.search import add_to_index, remove_from_index, query_index
+
+import jwt
+import redis
+import rq
+from flask import current_app
+from flask_login import AnonymousUserMixin, UserMixin
+from instance.config import *
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app.search import add_to_index, query_index, remove_from_index
+
+from . import db, login_manager
 
 
 class SearchableMixin(object):

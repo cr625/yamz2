@@ -11,6 +11,7 @@ from flask import request
 
 class SearchForm(FlaskForm):
     q = StringField("Search", validators=[DataRequired()])
+    submit = SubmitField("Search")
 
     def __init__(self, *args, **kwargs):
         if "formdata" not in kwargs:
