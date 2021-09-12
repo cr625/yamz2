@@ -94,9 +94,9 @@ def slugify(s):
     return re.sub("[^\w]+", "-", s).lower()
 
 
-class Tag(db.Model):
+class Tag(SearchableMixin, db.Model):
     __tablename__ = "tags"
-    __searchable__ = ["name, value"]
+    __searchable__ = ["value"]
     id = db.Column(db.Integer, primary_key=True)
     term_id = db.Column(db.Integer, db.ForeignKey("terms.id"))
     name = db.Column(db.Text)
@@ -386,7 +386,7 @@ class Relationship(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class Term(db.Model):
+class Term(SearchableMixin, db.Model):
     __tablename__ = "terms"
     __searchable__ = ["term"]
     id = db.Column(db.Integer, primary_key=True)
@@ -506,7 +506,7 @@ class Track(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class Comment(db.Model):
+class Comment(SearchableMixin, db.Model):
     __tablename__ = "comments"
     __searchable__ = ["body"]
     id = db.Column(db.Integer, primary_key=True)
