@@ -1,5 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
+from wtforms import (
+    StringField,
+    TextAreaField,
+    BooleanField,
+    SelectField,
+    SubmitField,
+    FieldList,
+)
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
 from ..models import Role, User, DEFAULT_TAGS
@@ -12,6 +19,13 @@ class TermForm(FlaskForm):
     submit = SubmitField("Submit")
     metadata = SelectField("Metadata", choices=DEFAULT_TAGS, default=DEFAULT_TAGS[0])
     tag = StringField("Tag")
+
+
+class UpdateTermForm(FlaskForm):
+    term = StringField("Term", validators=[DataRequired()])
+    tag_name = StringField("Name")
+    tag_value = StringField("Value")
+    submit = SubmitField("Update")
 
 
 class CommentForm(FlaskForm):

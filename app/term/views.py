@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import TermForm, CommentForm, TagForm
+from .forms import TermForm, CommentForm, TagForm, UpdateTermForm
 from instance.config import *
 
 
@@ -194,19 +194,23 @@ def update(id):
     term = Term.query.get_or_404(id)
     if current_user != term.author and not current_user.can(Permission.ADMIN):
         abort(403)
-    form = TermForm()
+    tags = term.tags.order_by(Tag.name)
+    form = UpdateTermForm()
     if form.validate_on_submit():
         term.term = form.term.data
-        term.definition = form.definition.data
-        term.source = form.source.data
+        tag_name = form.tag_name.data.strip()
+        tag_value = form.tag_value.data.strip()
+        term.name = term.term
         db.session.add(term)
         db.session.commit()
+        db.session.refresh(term)
+        if tag_name and tag_value:
+            term.tag(tag_name, tag_value)
         flash("The term has been updated.")
-        return redirect(url_for("term.show", id=term.id))
+        return redirect(url_for("term.update", id=term.id))
     form.term.data = term.term
-    form.definition.data = term.definition
-    form.source.data = term.source
-    return render_template("/term/update.html", form=form, term=term)
+
+    return render_template("/term/update.html", form=form, term=term, tags=tags)
 
 
 @term.route("/delete/<int:id>", methods=["GET", "POST"])
@@ -286,3 +290,16 @@ def tag(id):
         term.tag(name=name, value=value)
         return redirect(url_for("term.show", id=term.id))
     return render_template("/term/tag.html", form=form, term=term)
+
+
+@term.route("/tag/delete/<int:id>", methods=["GET", "POST"])
+@login_required
+def delete_tag(id):
+    tag = Tag.query.get_or_404(id)
+    term = tag.term
+    if current_user != term.author and not current_user.can(Permission.ADMIN):
+        abort(403)
+    db.session.delete(tag)
+    db.session.commit()
+    flash("The metadata item has been deleted.")
+    return redirect(url_for("term.update", id=term.id))
