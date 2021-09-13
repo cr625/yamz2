@@ -5,10 +5,23 @@
 
 {% block title %}Import{% endblock %}
 {% block header %}
-Import a >File/<a href="{{ url_for('graph.import_url') }}">URL</a>
+Import
 {% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col mt-4">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">File</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('graph.import_url') }}">Url</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 <form action="{{ url_for('graph.import_file') }}" method="post" enctype="multipart/form-data">
     <div class="row p-4">
         <div class="col-md-6">
@@ -19,7 +32,7 @@ Import a >File/<a href="{{ url_for('graph.import_url') }}">URL</a>
     </div>
     
     <div class="row">
-        <div class="col-md-6">
+        <div class="col">
             {{ form.submit(class_="btn btn-dark") }}
         </div>
     </div>
