@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% from 'bootstrap/form.html' import render_form %}
+
 
 {% block title %}Update{% endblock %}
 {% block header %}
@@ -8,10 +8,59 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-6 ml-4 mt-3">
-    <form method="POST" action="{{ url_for('term.update', id=term.id) }}">
-      {{ render_form(form) }}
+<form method="POST" action="{{ url_for('term.update', id=term.id) }}">
+  <div class="row">
+    <div class="col-md-4 p-2">
+
+      {{ form.csrf_token }}
+      {{ form.term.label(class_="form-label")}}
+      {{ form.term(class_="form-control") }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 h4 p-2">
+      Metadata
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 p-2">
+      {{ form.tag_name.label(class_="form-label")}}
+      {{ form.tag_name(class_="form-control") }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 p-2">
+      {{ form.tag_value.label(class_="form-label")}}
+      {{ form.tag_value(class_="form-control") }}
+      <small id="tagHelp" class="form-text text-muted">{{form.tag_value.description}}</small>
+    </div>
+  </div>
+
+  <div class="row pl-3">
+    <div class="col-md-6 p-2">
+      {{ form.submit(class_="btn btn-dark") }}
+    </div>
+  </div>
+</form>
+<div class="row p-4">
+  <div class="col-md-9">
+    {% for tag in tags %}
+    <dl class="row">
+
+      <dt class="col-sm-2">
+        {{tag.name}}
+
+      </dt>
+      <dd class="col">
+        {{ tag.value}}<br>
+        <a href="{{ url_for('term.update', id=term.id, edit_tag_id=tag.id) }}">[Edit]</a>
+        <a href="{{ url_for('term.delete_tag', id=tag.id) }}">[Remove]</a>
+      </dd>
+    </dl>
+    {% else%}
+    No metadata
+    {% endfor %}
   </div>
 </div>
+
 {% endblock %}
