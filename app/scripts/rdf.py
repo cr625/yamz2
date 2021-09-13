@@ -2,6 +2,9 @@
 
 from rdflib import Graph, Namespace
 
+from rdflib.namespace import RDF, RDFS, FOAF, XSD, DC, DCTERMS, _DCMITYPE
+
+
 file_graph = Graph()
 file_graph.parse("./graph/uploads/ontology.ttl")
 
