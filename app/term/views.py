@@ -195,6 +195,7 @@ def update(id):
     if current_user != term.author and not current_user.can(Permission.ADMIN):
         abort(403)
     tags = term.tags.order_by(Tag.name)
+    edit_tag_id = request.args.get("edit_tag_id")
     form = UpdateTermForm()
     if form.validate_on_submit():
         term.term = form.term.data
@@ -209,7 +210,10 @@ def update(id):
         flash("The term has been updated.")
         return redirect(url_for("term.update", id=term.id))
     form.term.data = term.term
-
+    if edit_tag_id is not None:
+        tag = Tag.query.get_or_404(edit_tag_id)
+        form.tag_name.data = tag.name
+        form.tag_value.data = tag.value
     return render_template("/term/update.html", form=form, term=term, tags=tags)
 
 

@@ -29,7 +29,7 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-4 p-2">
+    <div class="col-md-6 p-2">
       {{ form.tag_value.label(class_="form-label")}}
       {{ form.tag_value(class_="form-control") }}
       <small id="tagHelp" class="form-text text-muted">{{form.tag_value.description}}</small>
@@ -43,7 +43,7 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
   </div>
 </form>
 <div class="row p-4">
-  <div class="col">
+  <div class="col-md-9">
     {% for tag in tags %}
     <dl class="row">
 
@@ -52,7 +52,9 @@ Update <a href="{{ url_for('term.show', id=term.id) }}">{{ term.term }}</a>
 
       </dt>
       <dd class="col">
-        {{ tag.value}}<br><a href="{{ url_for('term.delete_tag', id=tag.id) }}">[Remove]</a>
+        {{ tag.value}}<br>
+        <a href="{{ url_for('term.update', id=term.id, edit_tag_id=tag.id) }}">[Edit]</a>
+        <a href="{{ url_for('term.delete_tag', id=tag.id) }}">[Remove]</a>
       </dd>
     </dl>
     {% else%}
