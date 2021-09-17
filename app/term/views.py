@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import TermForm, CommentForm, TagForm, UpdateTermForm
+from .forms import TermForm, CommentForm, TagForm, UpdateTermForm, CreateTermForm
 from instance.config import *
 
 
@@ -102,18 +102,21 @@ def show(id):
 @term.route("/create", methods=["GET", "POST"])
 @login_required
 def create():
-    form = TermForm()
+    form = CreateTermForm()
     if form.validate_on_submit():
-        term = Term(
-            term=form.term.data,
-            definition=form.definition.data,
-            author=current_user._get_current_object(),
-        )
+        author = current_user._get_current_object()
+        term = Term(term=form.term.data.strip(), author=author, source=author.username)
+        tag_name = form.tag_name.data.strip()
+        tag_value = form.tag_value.data.strip()
         db.session.add(term)
         db.session.commit()
+        db.session.refresh(term)
+        if tag_name and tag_value:
+            term.tag(tag_name, tag_value)
+            db.session.commit()
         flash("Term added.", "success")
-        return redirect(url_for("main.index"))
-    return render_template("term/add.html", form=form)
+        return redirect(url_for("term.update", id=term.id))
+    return render_template("term/create.html", form=form)
 
 
 @term.route("/add/<int:id>/", methods=["GET", "POST"])

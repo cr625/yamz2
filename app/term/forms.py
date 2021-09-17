@@ -28,6 +28,17 @@ class UpdateTermForm(FlaskForm):
     submit = SubmitField("Update")
 
 
+class CreateTermForm(FlaskForm):
+    term = StringField("Term", validators=[DataRequired()])
+    tag_name = StringField("Name", default="description", validators=[DataRequired()])
+    tag_value = TextAreaField(
+        "Value",
+        description="Add the first name value pair then save to add more.",
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Save")
+
+
 class CommentForm(FlaskForm):
     body = TextAreaField("Comment", validators=[DataRequired()])
     submit = SubmitField("Submit")

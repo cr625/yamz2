@@ -1,18 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Messages{% endblock %}
-
-
-{% block header %}
-
-Messages
-
-{% endblock %}
+{% block title %}{% block header %}Messages{% endblock %}{% endblock %}
 
 {% block content %}
-<div class="row">
 
-  {% for message in messages %}
+{% for message in messages %}
+<div class="row">
   <div class="col p-3">
     <div class="card" style="width: 25rem;">
       <div class="card-body">
@@ -21,8 +14,9 @@ Messages
         </h5>
         <h6 class="card-subtitle mb-2 text-muted"> {{ message.timestamp.strftime('%A, %B %d, %Y') }} UTC</h6>
         <p class="card-text">{{ message.body}}</p>
-        <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a>
+        <a class="card-link" href="{{ url_for('main.delete_message', id=message.id) }}">[delete]</a>
+        <a class="card-link" href="{{ url_for('main.send_message', recipient=message.recipient.username) }}">[message
+          {{message.recipient.username}}]</a>
       </div>
     </div>
   </div>

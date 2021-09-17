@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}{% block header %}New Term{% endblock %}{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('term.create') }}">
+  <div class="row">
+    <div class="col-md-4 p-2">
+
+      {{ form.csrf_token }}
+      {{ form.term.label(class_="form-label")}}
+      {{ form.term(class_="form-control") }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 h4 p-2">
+      Metadata
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 p-2">
+      {{ form.tag_name.label(class_="form-label")}}
+      {{ form.tag_name(class_="form-control") }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 p-2">
+      {{ form.tag_value.label(class_="form-label")}}
+      {{ form.tag_value(class_="form-control") }}
+      <small id="tagHelp" class="form-text text-muted">{{form.tag_value.description}}</small>
+    </div>
+  </div>
+    <div class="row pl-3">
+    <div class="col-md-6 p-2">
+      {{ form.submit(class_="btn btn-dark") }}
+    </div>
+  </div>
+  </form>
+
+{% endblock %}

@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+<form action="" method="post">
 <div class="row">
   <div class="col-4 ml-3 mt-3">
     {{ render_form(form) }}
@@ -23,4 +24,5 @@
     Forgot password? Click <a class="text-dark" href="{{ url_for('auth.reset_password_request') }}">here</a>to reset it.
   </div>
 </div>
+</form>
 {% endblock %}

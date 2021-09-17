@@ -197,7 +197,7 @@ def user_popup(username):
     return render_template("user_popup.html", user=user, form=form)
 
 
-@main.route("/send_message/<recipient>", methods=["GET", "POST"])
+@main.route("/message/send/<recipient>", methods=["GET", "POST"])
 @login_required
 def send_message(recipient):
     user = User.query.filter_by(username=recipient).first_or_404()
@@ -213,7 +213,7 @@ def send_message(recipient):
     )
 
 
-@main.route("/messages")
+@main.route("/message/list")
 @login_required
 def messages():
     current_user.last_message_read_time = datetime.utcnow()
@@ -233,6 +233,18 @@ def messages():
     return render_template(
         "messages.html", messages=messages.items, next_url=next_url, prev_url=prev_url
     )
+
+
+@main.route("/message/delete/<int:id>")
+@login_required
+def delete_message(id):
+    message = Message.query.get_or_404(id)
+    if current_user != message.author and not current_user.can(Permission.ADMIN):
+        abort(403)
+    db.session.delete(message)
+    db.session.commit()
+    flash("The message has been deleted.")
+    return redirect(url_for("main.messages", id=message.id))
 
 
 @main.route("/notifications")
