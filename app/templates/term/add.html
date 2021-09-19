@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Add {{ relationship }} {{ parent.term }}{% endblock %}
-{% block header %}Add {{ relationship }} <a href="{{url_for("term.show", id=parent.id)}}">{{ parent.term }}</a>{% endblock %}
+{% block title %}Add related term to {{ parent.term }}{% endblock %}
+{% block header %}Add related term{% endblock %}
 
 {% block content %}
 <form action="" method="post">
+{{ form.csrf_token }}
+<div class="row">
+  <div class="col-md-4 p-2">
+  {{ form.relationship_choices }} <a class="h4" href="{{url_for("term.show", id=parent.id)}}">{{ parent.term }}</a>
+</div>
   <div class="row">
     <div class="col-md-4 p-2">
-      {{ form.csrf_token }}
+      
       {{ form.term.label(class_="form-label")}}
       {{ form.term(class_="form-control") }}
     </div>

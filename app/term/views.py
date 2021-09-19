@@ -4,7 +4,14 @@ from flask_login import current_user, login_required
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import TermForm, CommentForm, TagForm, UpdateTermForm, CreateTermForm
+from .forms import (
+    TermForm,
+    CommentForm,
+    TagForm,
+    UpdateTermForm,
+    CreateTermForm,
+    CreateRelatedTermForm,
+)
 from instance.config import *
 
 
@@ -67,6 +74,7 @@ def get_templates():
 
 
 # /term/id returns a term using the display template including related terms, comments and vote count
+@term.route("/ark:/99152/h<int:id>")
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
@@ -122,11 +130,11 @@ def create():
 @term.route("/add/<int:id>/", methods=["GET", "POST"])
 @login_required
 def add(id):
-    relationship = request.args.get("relationship")
     parent = Term.query.get_or_404(id)
-    form = CreateTermForm()
+    form = CreateRelatedTermForm()
     if form.validate_on_submit():
         author = current_user._get_current_object()
+        relationship = form.relationship_choices.data
         child = Term(term=form.term.data.strip(), author=author, source=author.username)
         tag_name = form.tag_name.data.strip()
         tag_value = form.tag_value.data.strip()
@@ -139,9 +147,7 @@ def add(id):
         parent.instantiate(child, relationship)
         flash("Term added.", "success")
         return redirect(url_for("term.update", id=child.id))
-    return render_template(
-        "term/add.html", form=form, parent=parent, relationship=relationship
-    )
+    return render_template("term/add.html", form=form, parent=parent)
 
 
 @term.route("/comment/add/<int:id>", methods=["GET", "POST"])
