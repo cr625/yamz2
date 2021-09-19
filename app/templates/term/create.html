@@ -6,7 +6,6 @@
 <form method="POST" action="{{ url_for('term.create') }}">
   <div class="row">
     <div class="col-md-4 p-2">
-
       {{ form.csrf_token }}
       {{ form.term.label(class_="form-label")}}
       {{ form.term(class_="form-control") }}

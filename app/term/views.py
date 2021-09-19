@@ -123,25 +123,24 @@ def create():
 @login_required
 def add(id):
     relationship = request.args.get("relationship")
-    if not relationship == "instanceOf":
-        return "Only instances are supported right now."
     parent = Term.query.get_or_404(id)
-    form = TermForm()
+    form = CreateTermForm()
     if form.validate_on_submit():
-        child = Term(
-            term=form.term.data,
-            definition=form.definition.data,
-            source=form.source.data,
-            author=current_user._get_current_object(),
-        )
+        author = current_user._get_current_object()
+        child = Term(term=form.term.data.strip(), author=author, source=author.username)
+        tag_name = form.tag_name.data.strip()
+        tag_value = form.tag_value.data.strip()
+        if tag_name and tag_value:
+            child.tag(tag_name, tag_value)
+        db.session.commit()
         db.session.add(child)
         db.session.commit()
         db.session.refresh(child)
         parent.instantiate(child, relationship)
         flash("Term added.", "success")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("term.update", id=child.id))
     return render_template(
-        "term/object.html", form=form, parent=parent, relationship=relationship
+        "term/add.html", form=form, parent=parent, relationship=relationship
     )
 
 
