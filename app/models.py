@@ -87,6 +87,22 @@ class Namespace:
     XSD = "xsd"
 
 
+DEFAULT_RELATIONSHIPS = [
+    "instanceOf",
+    "subClassOf",
+    "subPropertyOf",
+    "domain",
+    "range",
+    "inverseOf",
+    "hasValue",
+    "hasInstance",
+    "hasSubClass",
+    "hasSubProperty",
+    "hasDomain",
+    "hasRange",
+    "hasInverse",
+]
+
 DEFAULT_TAGS = [
     "user",
     "schema",

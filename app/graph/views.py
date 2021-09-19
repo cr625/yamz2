@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 
 from .. import db
 from . import graph
-from .forms import UploadForm
+from .forms import UploadForm, ImportUrlForm
 
 
 @graph.route("/", methods=["GET", "POST"])
@@ -43,9 +43,16 @@ def validate_xml(stream):
     return file_type
 
 
+@graph.route("/import_url")
+@login_required
+def import_url(import_type=None):
+    form = ImportUrlForm()
+    return render_template("/graph/import_url.html", form=form)
+
+
 @graph.route("/import_file", methods=["GET", "POST"])
 @login_required
-def import_file():
+def import_file(import_type=None):
     form = UploadForm()
     if form.validate_on_submit():
         uploaded_file = request.files.get("file")
@@ -81,7 +88,9 @@ def import_file():
             flash("No file uploaded.")
             abort(400)
         return redirect(url_for("main.user", username=current_user.username))
-    return render_template("/graph/import.html", form=form)  # make these using join
+    return render_template(
+        "/graph/import_file.html", form=form
+    )  # make these using join
 
     # upload_file = request.files["file"]
     # if upload_file:

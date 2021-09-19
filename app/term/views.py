@@ -4,7 +4,14 @@ from flask_login import current_user, login_required
 from .. import db
 from ..models import Relationship, Term, Permission, Track, Comment, Tag
 from . import term
-from .forms import TermForm, CommentForm, TagForm, UpdateTermForm
+from .forms import (
+    TermForm,
+    CommentForm,
+    TagForm,
+    UpdateTermForm,
+    CreateTermForm,
+    CreateRelatedTermForm,
+)
 from instance.config import *
 
 
@@ -67,6 +74,7 @@ def get_templates():
 
 
 # /term/id returns a term using the display template including related terms, comments and vote count
+@term.route("/ark:/99152/h<int:id>")
 @term.route("/<int:id>")
 def show(id):
     term = Term.query.get_or_404(id)
@@ -102,44 +110,44 @@ def show(id):
 @term.route("/create", methods=["GET", "POST"])
 @login_required
 def create():
-    form = TermForm()
+    form = CreateTermForm()
     if form.validate_on_submit():
-        term = Term(
-            term=form.term.data,
-            definition=form.definition.data,
-            author=current_user._get_current_object(),
-        )
+        author = current_user._get_current_object()
+        term = Term(term=form.term.data.strip(), author=author, source=author.username)
+        tag_name = form.tag_name.data.strip()
+        tag_value = form.tag_value.data.strip()
         db.session.add(term)
         db.session.commit()
+        db.session.refresh(term)
+        if tag_name and tag_value:
+            term.tag(tag_name, tag_value)
+            db.session.commit()
         flash("Term added.", "success")
-        return redirect(url_for("main.index"))
-    return render_template("term/add.html", form=form)
+        return redirect(url_for("term.update", id=term.id))
+    return render_template("term/create.html", form=form)
 
 
 @term.route("/add/<int:id>/", methods=["GET", "POST"])
 @login_required
 def add(id):
-    relationship = request.args.get("relationship")
-    if not relationship == "instanceOf":
-        return "Only instances are supported right now."
     parent = Term.query.get_or_404(id)
-    form = TermForm()
+    form = CreateRelatedTermForm()
     if form.validate_on_submit():
-        child = Term(
-            term=form.term.data,
-            definition=form.definition.data,
-            source=form.source.data,
-            author=current_user._get_current_object(),
-        )
+        author = current_user._get_current_object()
+        relationship = form.relationship_choices.data
+        child = Term(term=form.term.data.strip(), author=author, source=author.username)
+        tag_name = form.tag_name.data.strip()
+        tag_value = form.tag_value.data.strip()
+        if tag_name and tag_value:
+            child.tag(tag_name, tag_value)
+        db.session.commit()
         db.session.add(child)
         db.session.commit()
         db.session.refresh(child)
         parent.instantiate(child, relationship)
         flash("Term added.", "success")
-        return redirect(url_for("main.index"))
-    return render_template(
-        "term/object.html", form=form, parent=parent, relationship=relationship
-    )
+        return redirect(url_for("term.update", id=child.id))
+    return render_template("term/add.html", form=form, parent=parent)
 
 
 @term.route("/comment/add/<int:id>", methods=["GET", "POST"])

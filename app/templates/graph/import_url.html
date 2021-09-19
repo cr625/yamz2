@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% from 'bootstrap/form.html' import render_form %}
+
+
+{% block title %}Import{% endblock %}
+{% block header %}
+Import
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col mt-4">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{{ url_for('graph.import_file') }}">File</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ url_for('graph.import_url') }}">Url</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<form action="{{ url_for('graph.import_file') }}" method="post" enctype="multipart/form-data">
+    <div class="row p-4">
+        <div class="col-md-6">
+            {{ form.csrf_token}}
+            {{ form.url(class_="form-control") }}
+           <div id="uploadHelp" class="form-text">Enter a URL</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            {{ form.submit(class_="btn btn-dark") }}
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% from 'bootstrap/form.html' import render_form %}
 
+{% block title %}Add {{ relationship }}{% endblock %}
 {% block header %}
-{% block title %}
-Add {{ relationship }} of <a href="{{url_for("term.show", id=parent.id)}}">{{ parent.term }}</a>
-{% endblock %}
+Add {{ relationship }} <a href="{{url_for("term.show", id=parent.id)}}">{{ parent.term }}</a>
 {% endblock %}
 
 {% block content %}
+<form method="POST" action="">
+
 <div class="row">
   <div class="col-6 ml-4 mt-3">
     {{ render_form(form) }}
@@ -19,4 +19,5 @@ Add {{ relationship }} of <a href="{{url_for("term.show", id=parent.id)}}">{{ pa
     (you can use the identifier as the definition to link to the original record)
   </div>
 </div>
+</form>
 {% endblock %}

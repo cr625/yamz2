@@ -18,6 +18,11 @@
                                     class="fas fa-chevron-down"></i></a><br>
                         </div>
                         <div class="col">
+                            <dl class="row">
+                                <dt class="col-sm-2">identifier</dt>
+                                <dd class="col">ark:/99152/h{{ term.id }}</dd>
+                            </dl>
+
                             {% for tag in tags %}
                             <dl class="row">
 
@@ -30,22 +35,30 @@
                             </dl>
                             {% endfor %}
 
-                            <br>
-                            {% if current_user == term.author %}
-                            <a href="{{ url_for('term.update', id=term.id) }}">[update]</a>
-                            <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
-                            {% endif %}
-                            {% if current_user.is_authenticated%}
-                            {% if not current_user.is_tracking(term) %}
-                            <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
-                            {% else%}
-                            <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
-                            {% endif %}
-                            <!--has.permission?-->
-                            <!--TODO: add popover of term it is an instance of -->
-                            <a href="{{ url_for('term.add',id=term.id, relationship='instanceOf')}}">[add related]</a>
-                            <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
-                            {% endif %}
+                            <div class="row">
+                                <div class="col text-start">
+                                    {% if current_user == term.author %}
+                                    <a href="{{ url_for('term.update', id=term.id) }}">[update]</a>
+                                    <a href="{{ url_for('term.delete',id=term.id)}}">[delete]</a>
+                                    {% endif %}
+                                    {% if current_user.is_authenticated%}
+                                    {% if not current_user.is_tracking(term) %}
+                                    <a href="{{ url_for('term.track',id=term.id)}}">[track]</a>
+                                    {% else%}
+                                    <a href="{{ url_for('term.untrack',id=term.id)}}">[untrack]</a>
+                                    {% endif %}
+                                    <!--has.permission?-->
+                                    <!--TODO: add popover of term it is an instance of -->
+                                    <a href="{{ url_for('term.add',id=term.id)}}">[add related]</a>
+                                    <a href="{{ url_for('term.comment',id=term.id)}}">[comment]</a>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col text-end">
+                                    <a class="fw-bold text-dark" href="#">persistence statement</a>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>

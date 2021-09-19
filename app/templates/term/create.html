@@ -1,23 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Add related term to {{ parent.term }}{% endblock %}
-{% block header %}Add related term{% endblock %}
+{% block title %}{% block header %}New Term{% endblock %}{% endblock %}
 
 {% block content %}
-<form action="" method="post">
-{{ form.csrf_token }}
-<div class="row">
-  <div class="col-md-4 p-2">
-  {{ form.relationship_choices }} <a class="h4" href="{{url_for("term.show", id=parent.id)}}">{{ parent.term }}</a>
-</div>
+<form method="POST" action="{{ url_for('term.create') }}">
   <div class="row">
     <div class="col-md-4 p-2">
-      
+      {{ form.csrf_token }}
       {{ form.term.label(class_="form-label")}}
       {{ form.term(class_="form-control") }}
     </div>
   </div>
-    <div class="row">
+  <div class="row">
     <div class="col-md-4 h4 p-2">
       Metadata
     </div>
@@ -40,7 +34,6 @@
       {{ form.submit(class_="btn btn-dark") }}
     </div>
   </div>
-
-</form>
+  </form>
 
 {% endblock %}

@@ -5,20 +5,34 @@
 
 {% block title %}Import{% endblock %}
 {% block header %}
-Import a schema
+Import
 {% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col mt-4">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">File</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('graph.import_url') }}">Url</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 <form action="{{ url_for('graph.import_file') }}" method="post" enctype="multipart/form-data">
     <div class="row p-4">
         <div class="col-md-6">
             {{ form.csrf_token}}
             {{ form.file(class_="form-control") }}
-           <div id="uploadHelp" class="form-text">We can only process RDF files at the moment.</div>
+           <div id="uploadHelp" class="form-text">Choose an rdf file to import.</div>
         </div>
     </div>
+    
     <div class="row">
-        <div class="col-md-6">
+        <div class="col">
             {{ form.submit(class_="btn btn-dark") }}
         </div>
     </div>

@@ -9,7 +9,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
-from ..models import Role, User, DEFAULT_TAGS
+from ..models import Role, User, DEFAULT_TAGS, DEFAULT_RELATIONSHIPS
 
 
 class TermForm(FlaskForm):
@@ -26,6 +26,31 @@ class UpdateTermForm(FlaskForm):
     tag_name = StringField("Name")
     tag_value = TextAreaField("Value", description="Add or edit name value pairs.")
     submit = SubmitField("Update")
+
+
+class CreateTermForm(FlaskForm):
+    term = StringField("Term", validators=[DataRequired()])
+    tag_name = StringField("Name", default="description", validators=[DataRequired()])
+    tag_value = TextAreaField(
+        "Value",
+        description="Add the first name value pair then save to add more.",
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Save")
+
+
+class CreateRelatedTermForm(FlaskForm):
+    term = StringField("Term", validators=[DataRequired()])
+    tag_name = StringField("Name", default="description", validators=[DataRequired()])
+    tag_value = TextAreaField(
+        "Value",
+        description="Add the first name value pair then save to add more.",
+        validators=[DataRequired()],
+    )
+    relationship_choices = SelectField(
+        "Relationships", choices=DEFAULT_RELATIONSHIPS, default=DEFAULT_RELATIONSHIPS[0]
+    )
+    submit = SubmitField("Save")
 
 
 class CommentForm(FlaskForm):
